@@ -11,17 +11,35 @@ export class HistoryService {
   ) {}
 
   addHistory(body: any) {
-    const newhistory = new history();
-    newhistory.order = body.order;
-    newhistory.note = body.note;
-    newhistory.outDate = body.outDate;
-    newhistory.quantity = body.quantity;
+    const newhistory = this.historyRepository.create({
+      order: body.order,
+      note: body.note,
+      outDate: body.outDate,
+      quantity: body.quantity,
+      item: body.item,
+      lot: body.lot,
+    });
 
     return this.historyRepository.save(newhistory);
   }
 
-  getHistory() {
-    const getHistory = this.historyRepository.find();
+  async getHistory() {
+    const getHistory = await this.historyRepository.find({
+      relations: {
+        item: true,
+        lot: true,
+      },
+    });
+
     return getHistory;
   }
+
+  async getHistorys(id: number) {
+    const getHistorys1 = await this.historyRepository.findOne({
+      where: { id },
+    });
+    return getHistorys1;
+  }
+
+  editHistory() {}
 }
