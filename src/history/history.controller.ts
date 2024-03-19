@@ -1,25 +1,39 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { HistoryService } from './history.service';
 
 @Controller('/history')
 export class HistoryController {
-    constructor(private readonly historyService: HistoryService) {}
+  constructor(private readonly historyService: HistoryService) {}
 
-    @Post()
-    addHistory(@Body() body:any) {
-      return this.historyService.addHistory(body)
-    }
+  @Get()
+  async getHistory() {
+    return await this.historyService.getHistory();
+  }
 
-    @Get()
-    async getHistory() {
-      return await this.historyService.getHistory();
-    }
+  @Get('/:id')
+  getHistorys(@Param('id', ParseIntPipe) id: number) {
+    return this.historyService.getHistorys(id);
+  }
 
-    @Get('/:id')
-    getHistorys(@Param('id', ParseIntPipe) id: number) {
-      return this.historyService.getHistorys(id);
-    }
+  @Put('/:id')
+  async updateHistory(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: any,
+  ) {
+    return await this.historyService.updateHistory(id, body);
+  }
 
-    @Put()
-    editHistory() {}
+  @Delete('/:id')
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    return await this.historyService.remove(id);
+  }
 }

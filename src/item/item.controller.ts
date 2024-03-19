@@ -1,17 +1,36 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+} from '@nestjs/common';
 import { ItemService } from './item.service';
+import { CreateItemDto } from './dto/create-item.dto';
 
-@Controller()
+@Controller('/item')
 export class ItemController {
-    constructor(private readonly itemService: ItemService) {}
+  constructor(private readonly itemService: ItemService) {}
 
-    @Post('/item')
-    addItem(@Body() body:any) {
-      return this.itemService.addItem(body)
-    }
-    
-    @Get('/item-list')
-    getItem() {
-      return this.itemService.getItem();
-    }
+  @Post()
+  addItem(@Body() body: CreateItemDto) {
+    return this.itemService.addItem(body);
+  }
+
+  @Get()
+  getItem() {
+    return this.itemService.getItem();
+  }
+
+  @Get('/:id')
+  async getItems(@Param('id', ParseIntPipe) id: number) {
+    return await this.itemService.getItems(id);
+  }
+
+  // @Delete('/:id')
+  // async removeItem(@Param('id', ParseIntPipe) id: number) {
+  //   return await this.itemService.removeItem(id);
+  // }
 }

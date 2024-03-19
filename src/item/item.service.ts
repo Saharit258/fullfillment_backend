@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { item } from '../endtiter/item.entity';
+import { CreateItemDto } from './dto/create-item.dto';
 
 @Injectable()
 export class ItemService {
@@ -10,7 +11,7 @@ export class ItemService {
     private itemRepository: Repository<item>,
   ) {}
 
-  addItem(body: any) {
+  addItem(body: CreateItemDto) {
     const newItem = new item();
     newItem.sku = body.sku;
     newItem.name = body.name;
@@ -20,8 +21,21 @@ export class ItemService {
     return this.itemRepository.save(newItem);
   }
 
-  getItem() {
-    const getItem = this.itemRepository.find();
+  async getItem() {
+    const getItem = await this.itemRepository.find();
     return getItem;
   }
+
+  async getItems(id: number) {
+    const getItems1 = await this.itemRepository.findOne({
+      where: { id },
+    });
+    return getItems1;
+  }
+
+  // async removeItem(id: number) {
+  //   const findByid = await this.getItems(id);
+  //   await this.itemRepository.remove(findByid);
+  //   return findByid;
+  // }
 }

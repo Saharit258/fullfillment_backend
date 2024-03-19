@@ -8,6 +8,7 @@ import { history } from './endtiter/history.entity';
 import { LotModule } from './lot/lot.module';
 import { ItemModule } from './item/item.module';
 import { HistoryModule } from './history/history.module';
+import { TestModule } from './test/test.module';
 
 @Module({
   imports: [
@@ -27,6 +28,8 @@ import { HistoryModule } from './history/history.module';
     ItemModule,
 
     HistoryModule,
+
+    TestModule,
   ],
 })
 export class AppModule {}
