@@ -12,11 +12,12 @@ export class ItemService {
   ) {}
 
   addItem(body: CreateItemDto) {
-    const newItem = new item();
-    newItem.sku = body.sku;
-    newItem.name = body.name;
-    newItem.details = body.details;
-    newItem.quantity = body.quantity;
+    const newItem = this.itemRepository.create({
+      sku: body.sku,
+      name: body.name,
+      details: body.details,
+      quantity: body.quantity,
+    });
 
     return this.itemRepository.save(newItem);
   }
@@ -33,9 +34,16 @@ export class ItemService {
     return getItems1;
   }
 
-  // async removeItem(id: number) {
-  //   const findByid = await this.getItems(id);
-  //   await this.itemRepository.remove(findByid);
-  //   return findByid;
-  // }
+  async remove(id: number) {
+    const findByids = await this.getItems(id);
+    await this.itemRepository.remove(findByids);
+    return findByids;
+  }
+
+  async updateItem(id: number, body: CreateItemDto) {
+    let findByids = await this.getItems(id);
+    findByids = { ...findByids, ...body };
+    const saveItem = await this.itemRepository.save(findByids);
+    return saveItem;
+  }
 }

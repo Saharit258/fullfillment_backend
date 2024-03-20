@@ -12,10 +12,11 @@ export class LotService {
   ) {}
 
   addLot(body: CreateLotDto) {
-    const newLot = new lot();
-    newLot.name = body.name;
-    newLot.incomingDate = body.incomingDate;
-    newLot.quantity = body.quantity;
+    const newLot = this.lotRepository.create({
+      name: body.name,
+      incomingDate: body.incomingDate,
+      quantity: body.quantity,
+    });
 
     return this.lotRepository.save(newLot);
   }

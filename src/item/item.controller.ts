@@ -6,6 +6,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
 } from '@nestjs/common';
 import { ItemService } from './item.service';
 import { CreateItemDto } from './dto/create-item.dto';
@@ -29,8 +30,16 @@ export class ItemController {
     return await this.itemService.getItems(id);
   }
 
-  // @Delete('/:id')
-  // async removeItem(@Param('id', ParseIntPipe) id: number) {
-  //   return await this.itemService.removeItem(id);
-  // }
+  @Put('/:id')
+  async updateItem(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: CreateItemDto,
+  ) {
+    return await this.itemService.updateItem(id, body);
+  }
+
+  @Delete('/:id')
+  async removeItem(@Param('id', ParseIntPipe) id: number) {
+    return await this.itemService.remove(id);
+  }
 }
