@@ -21,8 +21,9 @@ export class ItemController {
   }
 
   @Get()
-  getItem() {
-    return this.itemService.getItem();
+  async getItem() {
+    const data = await this.itemService.getItem();
+    return { data };
   }
 
   @Get('/:id')

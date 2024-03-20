@@ -1,4 +1,10 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { item } from './item.entity';
 import { lot } from './lot.entity';
 
@@ -18,6 +24,9 @@ export class history {
 
   @Column({ name: 'quantity', nullable: true, type: 'int4' })
   quantity: number;
+
+  @Column({ name: 'remark', nullable: true, type: 'varchar' })
+  remark: string;
 
   @ManyToOne(() => item, (item) => item.history)
   item: item;

@@ -13,4 +13,7 @@ export class CreateHistoryDto {
   @IsNumber()
   @IsNotEmpty()
   quantity: number;
+  @IsString()
+  @IsNotEmpty()
+  remark: string;
 }

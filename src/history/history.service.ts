@@ -17,6 +17,7 @@ export class HistoryService {
       note: body.note,
       outDate: body.outDate,
       quantity: body.quantity,
+      remark: body.remark,
     });
 
     return this.historyRepository.save(newhistory);

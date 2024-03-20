@@ -16,7 +16,8 @@ export class HistoryController {
 
   @Get()
   async getHistory() {
-    return await this.historyService.getHistory();
+    const data = await this.historyService.getHistory();
+    return { data };
   }
 
   @Get('/:id')

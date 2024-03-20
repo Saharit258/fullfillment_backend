@@ -21,8 +21,15 @@ export class LotService {
     return this.lotRepository.save(newLot);
   }
 
-  getLot() {
-    const getlot = this.lotRepository.find();
+  async getLot() {
+    const getlot = await this.lotRepository.find();
     return getlot;
+  }
+
+  async getLots(id: number) {
+    const getloto = await this.lotRepository.findOne({
+      where: { id },
+    });
+    return getloto;
   }
 }

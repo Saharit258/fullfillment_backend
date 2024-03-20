@@ -1,18 +1,31 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+} from '@nestjs/common';
 import { LotService } from './lot.service';
 import { CreateLotDto } from './dto/create-lot.dto';
 
-@Controller()
+@Controller('/lot')
 export class LotController {
   constructor(private readonly lotService: LotService) {}
 
-  @Post('/lot')
+  @Post()
   addLot(@Body() body: CreateLotDto) {
     return this.lotService.addLot(body);
   }
 
-  @Get('/lot-list')
-  getLot() {
-    return this.lotService.getLot();
+  @Get()
+  async getLot() {
+    const data = await this.lotService.getLot();
+    return { data };
+  }
+
+  @Get('/:id')
+  async getLots(@Param('id', ParseIntPipe) id: number) {
+    return await this.lotService.getLots(id);
   }
 }
