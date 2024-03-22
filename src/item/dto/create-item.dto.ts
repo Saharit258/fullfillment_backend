@@ -1,13 +1,10 @@
 import { IsDate, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateItemDto {
-  // @IsString()
-  // @IsNotEmpty()
-  // sku: string;
-  // @IsString()
-  // @IsNotEmpty()
-  // name: string;
-  // @IsString()
-  // @IsNotEmpty()
-  // details: string;
+  @IsString()
+  sku: string;
+  @IsString()
+  name: string;
+  @IsString()
+  details: string;
 }

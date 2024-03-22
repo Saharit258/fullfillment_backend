@@ -9,10 +9,16 @@ import {
   Put,
 } from '@nestjs/common';
 import { HistoryService } from './history.service';
+import { CreateHistoryDto } from '../history/dto/create-history.dio';
 
 @Controller('/history')
 export class HistoryController {
   constructor(private readonly historyService: HistoryService) {}
+
+  @Post()
+  async addHistory(@Body() body: CreateHistoryDto) {
+    return await this.historyService.addHistory(body);
+  }
 
   @Get()
   async getHistory() {
@@ -23,14 +29,6 @@ export class HistoryController {
   @Get('/:id')
   getHistorys(@Param('id', ParseIntPipe) id: number) {
     return this.historyService.getHistorys(id);
-  }
-
-  @Put('/:id')
-  async updateHistory(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() body: any,
-  ) {
-    return await this.historyService.updateHistory(id, body);
   }
 
   @Delete('/:id')

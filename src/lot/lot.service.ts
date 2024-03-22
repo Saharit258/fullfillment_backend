@@ -3,7 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { lot } from '../entities/lot.entity';
 import { history } from 'src/entities/history.entity';
+import { item } from '../entities/item.entity';
 import { CreateLotDto } from './dto/create-lot.dto';
+import { CreateItemDto } from '../item/dto/create-item.dto';
+import { CreateHistoryDto } from '../history/dto/create-history.dio';
 
 @Injectable()
 export class LotService {
@@ -12,6 +15,8 @@ export class LotService {
     private lotRepository: Repository<lot>,
     @InjectRepository(history)
     private historyRepository: Repository<history>,
+    @InjectRepository(item)
+    private itemRepository: Repository<item>,
   ) {}
 
   async addLot(body: CreateLotDto) {
@@ -31,5 +36,35 @@ export class LotService {
       .where('history.itemId = :id', { id })
       .getRawOne();
     return sum;
+  }
+
+  async getItems(id: number) {
+    const getItems1 = await this.itemRepository.findOne({
+      where: { id },
+    });
+    return getItems1;
+  }
+
+  async addHistorys(body: CreateHistoryDto, itemId: number) {
+    const itemToUpdate = await this.getItems(body.item);
+    if (!itemToUpdate) {
+      throw new NotFoundException(`Item with ID ${itemId} not found`);
+    }
+    const newhistory = this.historyRepository.create({
+      order: body.order,
+      note: body.note,
+      outDate: body.outDate,
+      quantity: body.quantity,
+      remark: body.remark,
+      item: { id: body.item },
+    });
+    const saveHistory = await this.historyRepository.save(newhistory);
+
+    const sumQuantity = await this.summaryQuantity(itemToUpdate.id);
+
+    itemToUpdate.quantity = sumQuantity.sum;
+    await this.itemRepository.save(itemToUpdate);
+
+    return saveHistory;
   }
 }

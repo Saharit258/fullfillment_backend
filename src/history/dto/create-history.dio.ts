@@ -1,4 +1,5 @@
 import { IsDate, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { item } from 'src/entities/item.entity';
 
 export class CreateHistoryDto {
   @IsString()
@@ -7,8 +8,6 @@ export class CreateHistoryDto {
   @IsString()
   @IsNotEmpty()
   note: string;
-  @IsDate()
-  @IsNotEmpty()
   outDate: Date;
   @IsNumber()
   @IsNotEmpty()
@@ -16,4 +15,5 @@ export class CreateHistoryDto {
   @IsString()
   @IsNotEmpty()
   remark: string;
+  item: number;
 }

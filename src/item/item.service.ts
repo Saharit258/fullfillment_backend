@@ -13,9 +13,9 @@ export class ItemService {
 
   addItem(body: CreateItemDto) {
     const newItem = this.itemRepository.create({
-      // sku: body.sku,
-      // name: body.name,
-      // details: body.details,
+      sku: body.sku,
+      name: body.name,
+      details: body.details,
       quantity: 0,
     });
 

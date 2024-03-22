@@ -18,6 +18,7 @@ export class HistoryService {
       outDate: body.outDate,
       quantity: body.quantity,
       remark: body.remark,
+      item: { id: body.item },
     });
 
     return this.historyRepository.save(newhistory);
@@ -49,12 +50,5 @@ export class HistoryService {
     const findByid = await this.getHistorys(id);
     await this.historyRepository.remove(findByid);
     return findByid;
-  }
-
-  async updateHistory(id: number, body: CreateHistoryDto) {
-    let findByid = await this.getHistorys(id);
-    findByid = { ...findByid, ...body };
-    const saveHistory = await this.historyRepository.save(findByid);
-    return saveHistory;
   }
 }
