@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { history } from '../endtiter/history.entity';
+import { history } from '../entities/history.entity';
 import { CreateHistoryDto } from './dto/create-history.dio';
 
 @Injectable()

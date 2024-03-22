@@ -11,7 +11,7 @@ import {
 import { ItemService } from './item.service';
 import { CreateItemDto } from './dto/create-item.dto';
 
-@Controller('/item')
+@Controller('/items')
 export class ItemController {
   constructor(private readonly itemService: ItemService) {}
 
@@ -28,7 +28,8 @@ export class ItemController {
 
   @Get('/:id')
   async getItems(@Param('id', ParseIntPipe) id: number) {
-    return await this.itemService.getItems(id);
+    const data = await this.itemService.getItems(id);
+    return { data };
   }
 
   @Put('/:id')

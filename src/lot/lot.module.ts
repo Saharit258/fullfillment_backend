@@ -2,10 +2,11 @@ import { Module } from '@nestjs/common';
 import { LotService } from './lot.service';
 import { LotController } from './lot.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { lot } from 'src/endtiter/lot.entity';
+import { lot } from 'src/entities/lot.entity';
+import { history } from 'src/entities/history.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([lot])],
+  imports: [TypeOrmModule.forFeature([lot, history])],
   providers: [LotService],
   controllers: [LotController],
 })

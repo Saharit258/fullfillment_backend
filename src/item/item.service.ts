@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { item } from '../endtiter/item.entity';
+import { item } from '../entities/item.entity';
 import { CreateItemDto } from './dto/create-item.dto';
 
 @Injectable()
@@ -13,10 +13,10 @@ export class ItemService {
 
   addItem(body: CreateItemDto) {
     const newItem = this.itemRepository.create({
-      sku: body.sku,
-      name: body.name,
-      details: body.details,
-      quantity: body.quantity,
+      // sku: body.sku,
+      // name: body.name,
+      // details: body.details,
+      quantity: 0,
     });
 
     return this.itemRepository.save(newItem);
