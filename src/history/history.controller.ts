@@ -23,10 +23,10 @@ export class HistoryController {
     return { data };
   }
 
-  @Get('/:id')
-  getHistorys(@Param('id', ParseIntPipe) id: number) {
-    return this.historyService.getHistorys(id);
-  }
+  // @Get('/:id')
+  // getHistorys(@Param('id', ParseIntPipe) id: number) {
+  //   return this.historyService.getHistorys(id);
+  // }
 
   @Delete('/:id')
   async remove(@Param('id', ParseIntPipe) id: number) {
@@ -38,8 +38,8 @@ export class HistoryController {
     return await this.historyService.addHistorys(body);
   }
 
-  // @Post('multiple')
-  // async addMultipleHistories(@Body() bodies: CreateHistoryDto[]) {
-  //   return await this.historyService.addHistoryss(bodies);
-  // }
+  @Post('multiple')
+  async addMultipleHistories(@Body() bodies: CreateHistoryDto[]) {
+    return await this.historyService.addHistoryss(bodies);
+  }
 }

@@ -53,24 +53,6 @@ export class HistoryService {
   //   return saveHistory;
   // }
 
-  //addHistory หลายตัว
-
-  // async addHistoryss(bodies: CreateHistoryDto[]) {
-  //   const newHistories = bodies.map((body) => {
-  //     return this.historyRepository.create({
-  //       order: body.order,
-  //       outDate: body.outDate,
-  //       quantity: body.quantity,
-  //       remark: body.remark,
-  //       item: { id: body.item },
-  //     });
-  //   });
-
-  //   const savedHistories = await this.historyRepository.save(newHistories);
-
-  //   return savedHistories;
-  // }
-
   async getHistory() {
     const getHistory = await this.historyRepository.find({
       relations: {
@@ -99,6 +81,7 @@ export class HistoryService {
     return findByid;
   }
 
+  //บวกในข้อมูล
   async summaryQuantity(id: number) {
     const sum = await this.historyRepository
       .createQueryBuilder('history')
@@ -137,6 +120,37 @@ export class HistoryService {
     itemToUpdate.quantity = sumQuantity.sum;
     await this.itemRepository.save(itemToUpdate);
 
-    return saveHistory;
+    return { saveHistory };
+  }
+
+  //addHistory หลายตัว
+  async addHistoryss(bodies: CreateHistoryDto[]) {
+    const currentDate = new Date();
+
+    const promises = bodies.map(async (body) => {
+      const itemToUpdate = await this.getItems(body.item);
+      if (!itemToUpdate) {
+        throw new NotFoundException(`Item with ID ${body.item} not found`);
+      }
+
+      const newHistory = this.historyRepository.create({
+        order: body.order,
+        outDate: currentDate,
+        quantity: body.quantity,
+        remark: body.remark,
+        item: { id: body.item },
+      });
+
+      const savedHistory = await this.historyRepository.save(newHistory);
+      const sumQuantity = await this.summaryQuantity(itemToUpdate.id);
+      itemToUpdate.quantity = sumQuantity.sum;
+      await this.itemRepository.save(itemToUpdate);
+
+      return savedHistory;
+    });
+
+    const savedHistories = await Promise.all(promises);
+
+    return { savedHistories };
   }
 }
