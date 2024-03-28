@@ -38,8 +38,8 @@ export class HistoryController {
     return await this.historyService.addHistorys(body);
   }
 
-  @Post('multiple')
-  async addMultipleHistories(@Body() bodies: CreateHistoryDto[]) {
-    return await this.historyService.addHistoryss(bodies);
-  }
+  // @Post('multiple')
+  // async addMultipleHistories(@Body() bodies: CreateHistoryDto[]) {
+  //   return await this.historyService.addHistoryss(bodies);
+  // }
 }

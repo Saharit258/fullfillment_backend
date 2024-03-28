@@ -26,11 +26,19 @@ export class ItemController {
     return this.itemService.addItem(body);
   }
 
+  @Post('/multiple')
+  async addItems(@Body() body: CreateItemDto[]) {
+    const data = await this.itemService.addItems(body);
+    return { data };
+  }
+
   @Get()
   async getItemss() {
     const data = await this.itemService.getItemss();
     return { data };
   }
+
+  //แสดง PageOptionsDto
 
   // @Get()
   // async getItem(@Query() query: PageOptionsDto): Promise<Pagination<item>> {

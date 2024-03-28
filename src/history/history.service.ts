@@ -15,33 +15,61 @@ export class HistoryService {
     private itemRepository: Repository<item>,
   ) {}
 
-  addHistory(body: CreateHistoryDto) {
-    const newhistory = this.historyRepository.create({
-      order: body.order,
-      outDate: body.outDate,
-      quantity: body.quantity,
-      remark: body.remark,
-      item: { id: body.item },
-    });
+  // addHistory(body: CreateHistoryDto) {
+  //   const newhistory = this.historyRepository.create({
+  //     order: body.order,
+  //     outDate: body.outDate,
+  //     quantity: body.quantity,
+  //     remark: body.remark,
+  //     item: { id: body.item },
+  //   });
 
-    return this.historyRepository.save(newhistory);
-  }
+  //   return this.historyRepository.save(newhistory);
+  // }
 
-  async addHistoryss(bodies: CreateHistoryDto[]) {
-    const newHistories = bodies.map((body) => {
-      return this.historyRepository.create({
-        order: body.order,
-        outDate: body.outDate,
-        quantity: body.quantity,
-        remark: body.remark,
-        item: { id: body.item },
-      });
-    });
+  // async addHistorys(body: CreateHistoryDto) {
+  //   const itemToUpdate = await this.getItems(body.item);
+  //   if (!itemToUpdate) {
+  //     throw new NotFoundException(`Item with ID not found`);
+  //   }
 
-    const savedHistories = await this.historyRepository.save(newHistories);
+  //   const currentDate = new Date(); // Get current date and time
 
-    return savedHistories;
-  }
+  //   const newhistory = this.historyRepository.create({
+  //     order: body.order,
+  //     outDate: currentDate, // Set outDate to current date and time
+  //     quantity: body.quantity,
+  //     remark: body.remark,
+  //     item: { id: body.item },
+  //   });
+
+  //   const saveHistory = await this.historyRepository.save(newhistory);
+
+  //   const sumQuantity = await this.summaryQuantity(itemToUpdate.id);
+
+  //   itemToUpdate.quantity = sumQuantity.sum;
+  //   await this.itemRepository.save(itemToUpdate);
+
+  //   return saveHistory;
+  // }
+
+  //addHistory หลายตัว
+
+  // async addHistoryss(bodies: CreateHistoryDto[]) {
+  //   const newHistories = bodies.map((body) => {
+  //     return this.historyRepository.create({
+  //       order: body.order,
+  //       outDate: body.outDate,
+  //       quantity: body.quantity,
+  //       remark: body.remark,
+  //       item: { id: body.item },
+  //     });
+  //   });
+
+  //   const savedHistories = await this.historyRepository.save(newHistories);
+
+  //   return savedHistories;
+  // }
 
   async getHistory() {
     const getHistory = await this.historyRepository.find({
@@ -92,9 +120,12 @@ export class HistoryService {
     if (!itemToUpdate) {
       throw new NotFoundException(`Item with ID not found`);
     }
+
+    const currentDate = new Date();
+
     const newhistory = this.historyRepository.create({
       order: body.order,
-      outDate: body.outDate,
+      outDate: currentDate,
       quantity: body.quantity,
       remark: body.remark,
       item: { id: body.item },

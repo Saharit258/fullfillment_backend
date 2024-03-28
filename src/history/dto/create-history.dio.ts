@@ -15,9 +15,6 @@ export class CreateHistoryDto {
   note: string;
 
   @ApiProperty()
-  outDate: Date;
-
-  @ApiProperty()
   @IsNumber()
   @IsNotEmpty()
   quantity: number;
