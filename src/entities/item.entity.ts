@@ -1,5 +1,12 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  ManyToOne,
+} from 'typeorm';
 import { history } from './history.entity';
+import { Stores } from './stores.entity';
 
 @Entity()
 export class item {
@@ -18,6 +25,9 @@ export class item {
   @Column({ name: 'quantity', nullable: true, type: 'int4' })
   quantity: number;
 
-  @OneToMany(() => history, (history) => history.id)
+  @OneToMany(() => history, (history) => history.item)
   history: history[];
+
+  @ManyToOne(() => Stores, (stores) => stores.item)
+  stores: Stores;
 }

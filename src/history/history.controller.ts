@@ -10,15 +10,12 @@ import {
 } from '@nestjs/common';
 import { HistoryService } from './history.service';
 import { CreateHistoryDto } from '../history/dto/create-history.dio';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('/history')
+@ApiTags('/history')
 export class HistoryController {
   constructor(private readonly historyService: HistoryService) {}
-
-  @Post()
-  async addHistory(@Body() body: CreateHistoryDto) {
-    return await this.historyService.addHistory(body);
-  }
 
   @Get()
   async getHistory() {
@@ -34,5 +31,15 @@ export class HistoryController {
   @Delete('/:id')
   async remove(@Param('id', ParseIntPipe) id: number) {
     return await this.historyService.remove(id);
+  }
+
+  @Post()
+  async addHistory(@Body() body: CreateHistoryDto) {
+    return await this.historyService.addHistorys(body);
+  }
+
+  @Post('multiple')
+  async addMultipleHistories(@Body() bodies: CreateHistoryDto[]) {
+    return await this.historyService.addHistoryss(bodies);
   }
 }

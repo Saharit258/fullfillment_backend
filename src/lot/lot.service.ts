@@ -29,42 +29,42 @@ export class LotService {
     return this.lotRepository.save(newItem);
   }
 
-  async summaryQuantity(id: number) {
-    const sum = await this.historyRepository
-      .createQueryBuilder('history')
-      .select('SUM(history.quantity)::int4', 'sum')
-      .where('history.itemId = :id', { id })
-      .getRawOne();
-    return sum;
-  }
+  // async summaryQuantity(id: number) {
+  //   const sum = await this.historyRepository
+  //     .createQueryBuilder('history')
+  //     .select('SUM(history.quantity)::int4', 'sum')
+  //     .where('history.itemId = :id', { id })
+  //     .getRawOne();
+  //   return sum;
+  // }
 
-  async getItems(id: number) {
-    const getItems1 = await this.itemRepository.findOne({
-      where: { id },
-    });
-    return getItems1;
-  }
+  // async getItems(id: number) {
+  //   const getItems1 = await this.itemRepository.findOne({
+  //     where: { id },
+  //   });
+  //   return getItems1;
+  // }
 
-  async addHistorys(body: CreateHistoryDto, itemId: number) {
-    const itemToUpdate = await this.getItems(body.item);
-    if (!itemToUpdate) {
-      throw new NotFoundException(`Item with ID ${itemId} not found`);
-    }
-    const newhistory = this.historyRepository.create({
-      order: body.order,
-      note: body.note,
-      outDate: body.outDate,
-      quantity: body.quantity,
-      remark: body.remark,
-      item: { id: body.item },
-    });
-    const saveHistory = await this.historyRepository.save(newhistory);
+  // async addHistorys(body: CreateHistoryDto, itemId: number) {
+  //   const itemToUpdate = await this.getItems(body.item);
+  //   if (!itemToUpdate) {
+  //     throw new NotFoundException(`Item with ID ${itemId} not found`);
+  //   }
+  //   const newhistory = this.historyRepository.create({
+  //     order: body.order,
+  //     note: body.note,
+  //     outDate: body.outDate,
+  //     quantity: body.quantity,
+  //     remark: body.remark,
+  //     item: { id: body.item },
+  //   });
+  //   const saveHistory = await this.historyRepository.save(newhistory);
 
-    const sumQuantity = await this.summaryQuantity(itemToUpdate.id);
+  //   const sumQuantity = await this.summaryQuantity(itemToUpdate.id);
 
-    itemToUpdate.quantity = sumQuantity.sum;
-    await this.itemRepository.save(itemToUpdate);
+  //   itemToUpdate.quantity = sumQuantity.sum;
+  //   await this.itemRepository.save(itemToUpdate);
 
-    return saveHistory;
-  }
+  //   return saveHistory;
+  // }
 }

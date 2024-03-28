@@ -3,9 +3,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { lot } from './entities/lot.entity';
 import { item } from './entities/item.entity';
 import { history } from './entities/history.entity';
+import { Stores } from './entities/stores.entity';
 import { LotModule } from './lot/lot.module';
 import { ItemModule } from './item/item.module';
 import { HistoryModule } from './history/history.module';
+import { StoresModule } from './stores/stores.module';
 
 @Module({
   imports: [
@@ -16,7 +18,7 @@ import { HistoryModule } from './history/history.module';
       username: 'postgres',
       password: '123456',
       database: 'fullfillment',
-      entities: [lot, item, history],
+      entities: [lot, item, history, Stores],
       synchronize: true,
     }),
 
@@ -25,6 +27,8 @@ import { HistoryModule } from './history/history.module';
     ItemModule,
 
     HistoryModule,
+
+    StoresModule,
   ],
 })
 export class AppModule {}

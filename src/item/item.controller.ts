@@ -1,17 +1,23 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   Param,
   ParseIntPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { ItemService } from './item.service';
-import { CreateItemDto } from './dto/create-item.dto';
+import { CreateItemDto, PageOptionsDto } from './dto/create-item.dto';
+import { ApiTags } from '@nestjs/swagger';
+import { IPaginationOptions, Pagination } from 'nestjs-typeorm-paginate';
+import { item } from '../entities/item.entity';
 
 @Controller('/items')
+@ApiTags('item')
 export class ItemController {
   constructor(private readonly itemService: ItemService) {}
 
@@ -21,10 +27,15 @@ export class ItemController {
   }
 
   @Get()
-  async getItem() {
-    const data = await this.itemService.getItem();
+  async getItemss() {
+    const data = await this.itemService.getItemss();
     return { data };
   }
+
+  // @Get()
+  // async getItem(@Query() query: PageOptionsDto): Promise<Pagination<item>> {
+  //   return await this.itemService.getItem(query);
+  // }
 
   @Get('/:id')
   async getItems(@Param('id', ParseIntPipe) id: number) {

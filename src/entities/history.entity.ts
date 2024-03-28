@@ -4,6 +4,8 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   JoinColumn,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { item } from './item.entity';
 import { lot } from './lot.entity';
@@ -15,9 +17,6 @@ export class history {
 
   @Column({ name: 'order', nullable: true, type: 'varchar' })
   order: string;
-
-  @Column({ name: 'note', nullable: true, type: 'varchar' })
-  note: string;
 
   @Column({ name: 'out_date', nullable: true, type: 'timestamptz' })
   outDate: Date;
