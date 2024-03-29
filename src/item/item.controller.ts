@@ -15,6 +15,8 @@ import { CreateItemDto, PageOptionsDto } from './dto/create-item.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { IPaginationOptions, Pagination } from 'nestjs-typeorm-paginate';
 import { item } from '../entities/item.entity';
+import { Connection } from 'typeorm';
+import { UpdateItemDto } from './dto/update-item.dto';
 
 @Controller('/items')
 @ApiTags('item')
@@ -32,9 +34,19 @@ export class ItemController {
     return { data };
   }
 
+  @Post('/test')
+  async addItemTest(@Body() body: CreateItemDto[]) {
+    try {
+      const result = await this.itemService.addItemTest(body);
+      return { success: true, data: result };
+    } catch (error) {
+      return { success: false, message: 'Failed to add items', error };
+    }
+  }
+
   @Get()
   async getItemss() {
-    const data = await this.itemService.getItemss();
+    const data = await this.itemService.getItems();
     return { data };
   }
 
@@ -47,14 +59,14 @@ export class ItemController {
 
   @Get('/:id')
   async getItems(@Param('id', ParseIntPipe) id: number) {
-    const data = await this.itemService.getItems(id);
+    const data = await this.itemService.getItem(id);
     return { data };
   }
 
   @Put('/:id')
   async updateItem(
     @Param('id', ParseIntPipe) id: number,
-    @Body() body: CreateItemDto,
+    @Body() body: UpdateItemDto,
   ) {
     return await this.itemService.updateItem(id, body);
   }

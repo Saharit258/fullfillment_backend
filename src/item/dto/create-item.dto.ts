@@ -14,18 +14,22 @@ import { Type } from 'class-transformer';
 export class CreateItemDto {
   @ApiProperty()
   @IsString()
+  @IsOptional()
   sku: string;
 
   @ApiProperty()
   @IsString()
+  @IsOptional()
   name: string;
 
   @ApiProperty()
   @IsString()
+  @IsOptional()
   details: string;
 
   @ApiProperty()
   @IsNumber()
+  @IsOptional()
   stores: number;
 }
 

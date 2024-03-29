@@ -15,93 +15,66 @@ export class StoresService {
   ) {}
 
   async addStores(body: CreateStoreDto) {
-    const addStores = this.storeRepository.create({
-      name: body.name,
-      shipperCode: body.shipperCode,
-      shipperName: body.shipperName,
-      zipCode: body.zipCode,
-      phoneNumber: body.phoneNumber,
-      email: body.email,
-      isDelete: false,
-    });
+    try {
+      const addStores = this.storeRepository.create({
+        name: body.name,
+        shipperCode: body.shipperCode,
+        shipperName: body.shipperName,
+        zipCode: body.zipCode,
+        phoneNumber: body.phoneNumber,
+        email: body.email,
+        isDelete: false,
+      });
 
-    const data = await this.storeRepository.save(addStores);
-    return { data };
+      const store = await this.storeRepository.save(addStores);
+      return store;
+    } catch (error) {
+      throw new Error(` ไม่สามารถเพิ่มได้ ${error.message}`);
+    }
   }
 
   async getStore() {
-    const data = await this.storeRepository.find({
-      where: { isDelete: false },
-    });
-    return { data };
+    try {
+      const data = await this.storeRepository.find({
+        where: { isDelete: false },
+      });
+      return data;
+    } catch (error) {
+      throw new Error(` ไม่สามารถแสดงผลได้ `);
+    }
   }
 
-  // async removeStore(id: number) {
-  //   const removeStore = await this.storeRepository.findOne({
-  //     where: { id },
-  //   });
-
-  //   const items = await this.itemRepository.find({
-  //     where: { stores: removeStore },
-  //   });
-
-  //   for (const item of items) {
-  //     item.stores = null;
-  //     await this.itemRepository.save(item);
-  //   }
-
-  //   await this.storeRepository.remove(removeStore);
-  //   return true;
-  // }
-
   async removeStore(id: number) {
-    const storeToRemove = await this.storeRepository.findOne({
-      where: { id },
-    });
+    try {
+      const storeToRemove = await this.storeRepository.findOne({
+        where: { id },
+      });
 
-    if (storeToRemove) {
-      storeToRemove.isDelete = true;
+      if (storeToRemove) {
+        storeToRemove.isDelete = true;
 
-      await this.storeRepository.save(storeToRemove);
-      return true;
-    } else {
-      return false;
+        await this.storeRepository.save(storeToRemove);
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      throw new Error(` ไม่สามารถลบได้ !!`);
     }
   }
 
   async updateStore(id: number, body: CreateStoreDto) {
-    let updateStore = await this.storeRepository.findOne({
-      where: { id },
-    });
-    updateStore = { ...updateStore, ...body };
-    const savedStore = await this.storeRepository.save(updateStore);
-    return savedStore;
+    try {
+      const updateResult = await this.storeRepository.update({ id }, body);
+      if (updateResult.affected === 0) {
+        throw new Error(`${id}`);
+      }
+      const updatedStore = await this.storeRepository.findOne({
+        where: { id },
+      });
+      return updatedStore;
+    } catch (error) {
+      throw new Error(`ไม่สามารถแก้ไขได้ ${id}: ${error.message}`);
+    }
   }
-
-  // async updateStores(id: number, body: CreateStoreDto) {
-  //   const Stores = await this.storeRepository.findOne({
-  //     where: { id },
-  //   });
-  //   Stores = { ...Stores, ...body };
-  //   const saveStoress = this.storeRepository.save(Stores)
-  // }
-
-  // async updateItem(id: number, body: CreateItemDto) {
-  //   let updateItem = await this.getItem(id);
-  //   updateItem = { ...updateItem, ...body };
-  //   const sevaItem = this.ItemRepository.save(updateItem);
-  //   return sevaItem;
-  // }
-
-  // async updateStore(id: number, body: CreateStoreDto) {
-  //   const foundStore = await this.storeRepository.findOne({
-  //   where: { id },
-  // });
-  //   foundStore.sku = body.sku;
-  //   foundStore.name = body.name;
-  //   foundStore.details = body.details;
-
-  //   const updatedItem = await this.itemRepository.save(foundItem);
-  //   return updatedItem;
-  // }
 }

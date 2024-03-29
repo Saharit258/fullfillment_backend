@@ -17,22 +17,6 @@ import { ApiTags } from '@nestjs/swagger';
 export class HistoryController {
   constructor(private readonly historyService: HistoryService) {}
 
-  @Get()
-  async getHistory() {
-    const data = await this.historyService.getHistory();
-    return { data };
-  }
-
-  // @Get('/:id')
-  // getHistorys(@Param('id', ParseIntPipe) id: number) {
-  //   return this.historyService.getHistorys(id);
-  // }
-
-  @Delete('/:id')
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    return await this.historyService.remove(id);
-  }
-
   @Post()
   async addHistory(@Body() body: CreateHistoryDto) {
     return await this.historyService.addHistorys(body);
@@ -42,4 +26,15 @@ export class HistoryController {
   async addMultipleHistories(@Body() bodies: CreateHistoryDto[]) {
     return await this.historyService.addHistoryss(bodies);
   }
+
+  @Get()
+  async getHistory() {
+    const data = await this.historyService.getHistorys();
+    return { data };
+  }
+
+  // @Get('/:id')
+  // getHistorys(@Param('id', ParseIntPipe) id: number) {
+  //   return this.historyService.getHistorys(id);
+  // }
 }

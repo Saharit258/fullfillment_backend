@@ -1,3 +1,4 @@
+import { error } from 'console';
 import {
   Controller,
   Get,
@@ -20,17 +21,22 @@ export class StoresController {
 
   @Post()
   async addStores(@Body() body: CreateStoreDto) {
-    return await this.storesService.addStores(body);
+    try {
+      const data = await this.storesService.addStores(body);
+      return { data };
+    } catch (error) {
+      throw new Error(`${error.message}`);
+    }
   }
 
   @Get()
   async getStore() {
-    return await this.storesService.getStore();
-  }
-
-  @Delete('/:id')
-  async removeStore(@Param('id', ParseIntPipe) id: number) {
-    return await this.storesService.removeStore(id);
+    try {
+      const data = await this.storesService.getStore();
+      return { data };
+    } catch (error) {
+      throw new Error(`${error.message}`);
+    }
   }
 
   @Put('/:id')
@@ -38,6 +44,21 @@ export class StoresController {
     @Param('id', ParseIntPipe) id: number,
     @Body() body: CreateStoreDto,
   ) {
-    return await this.storesService.updateStore(id, body);
+    try {
+      const data = await this.storesService.updateStore(id, body);
+      return { data };
+    } catch (error) {
+      throw new Error(`${error.message}`);
+    }
+  }
+
+  @Delete('/:id')
+  async removeStore(@Param('id', ParseIntPipe) id: number) {
+    try {
+      await this.storesService.removeStore(id);
+      return { data: {} };
+    } catch (error) {
+      throw new Error(`${error.message}`);
+    }
   }
 }

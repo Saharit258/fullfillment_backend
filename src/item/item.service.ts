@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Connection, QueryRunner, Repository } from 'typeorm';
 import { item } from '../entities/item.entity';
 import { history } from '../entities/history.entity';
 import { CreateItemDto, PageOptionsDto } from './dto/create-item.dto';
@@ -9,6 +9,8 @@ import {
   Pagination,
   paginate,
 } from 'nestjs-typeorm-paginate';
+import { error } from 'console';
+import { UpdateItemDto } from './dto/update-item.dto';
 
 @Injectable()
 export class ItemService {
@@ -17,9 +19,10 @@ export class ItemService {
     private itemRepository: Repository<item>,
     @InjectRepository(history)
     private historyRepository: Repository<history>,
+    private connection: Connection,
   ) {}
 
-  addItem(body: CreateItemDto) {
+  async addItem(body: CreateItemDto) {
     const newItem = this.itemRepository.create({
       sku: body.sku,
       name: body.name,
@@ -28,7 +31,35 @@ export class ItemService {
       stores: { id: body.stores },
     });
 
-    return this.itemRepository.save(newItem);
+    return await this.itemRepository.save(newItem);
+  }
+
+  async addItemTest(body: CreateItemDto[]) {
+    let queryRunner: QueryRunner;
+    try {
+      queryRunner = this.connection.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+
+      for (const itemData of body) {
+        await queryRunner.manager.getRepository(item).save({
+          sku: itemData.sku,
+          name: itemData.name,
+          details: itemData.details,
+          quantity: 0,
+          stores: { id: itemData.stores },
+        });
+      }
+
+      await queryRunner.commitTransaction();
+      return body;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      console.error('เกิดข้อผิดพลาดในการเพิ่มไอเท็ม:', error);
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async addItems(body: CreateItemDto[]) {
@@ -47,11 +78,11 @@ export class ItemService {
     return saveItem;
   }
 
-  async getItemss() {
-    const getItem = await this.itemRepository.find({
+  async getItems() {
+    const getItems = await this.itemRepository.find({
       relations: { stores: true, history: { lot: true } },
     });
-    return getItem;
+    return getItems;
   }
 
   //แสดงPageOptionsDto
@@ -69,16 +100,16 @@ export class ItemService {
   //   return paginatedItems;
   // }
 
-  async getItems(id: number) {
-    const getItems1 = await this.itemRepository.findOne({
+  async getItem(id: number) {
+    const getItem = await this.itemRepository.findOne({
       where: { id },
       relations: { stores: true, history: { lot: true } },
     });
-    return getItems1;
+    return getItem;
   }
 
   async remove(id: number) {
-    const findByids = await this.getItems(id);
+    const findByids = await this.getItem(id);
 
     const history = await this.historyRepository.find({
       where: { item: findByids },
@@ -87,17 +118,20 @@ export class ItemService {
       historys.item = null;
       await this.historyRepository.save(historys);
     }
-
     await this.itemRepository.remove(findByids);
     return true;
   }
 
-  async updateItem(id: number, body: CreateItemDto) {
-    const foundItem = await this.getItems(id);
-    foundItem.sku = body.sku;
-    foundItem.name = body.name;
-    foundItem.details = body.details;
-    const updatedItem = await this.itemRepository.save(foundItem);
-    return updatedItem;
+  async updateItem(id: number, body: UpdateItemDto) {
+    try {
+      const foundItem = await this.getItem(id);
+      foundItem.sku = body.sku;
+      foundItem.name = body.name;
+      foundItem.details = body.details;
+      const updatedItem = await this.itemRepository.save(foundItem);
+      return updatedItem;
+    } catch (error) {
+      throw new Error(`${error.message} ${id} ไม่พบข้อมูล `);
+    }
   }
 }
