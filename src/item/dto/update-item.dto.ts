@@ -18,4 +18,8 @@ export class UpdateItemDto {
   @IsString()
   @IsOptional()
   details: string;
+
+  @ApiProperty()
+  @IsOptional()
+  stores: number;
 }

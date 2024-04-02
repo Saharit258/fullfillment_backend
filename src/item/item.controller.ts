@@ -11,7 +11,9 @@ import {
   Query,
 } from '@nestjs/common';
 import { ItemService } from './item.service';
+import { HistoryService } from '../history/history.service';
 import { CreateItemDto, PageOptionsDto } from './dto/create-item.dto';
+import { CreateHistoryDto } from '../history/dto/create-history.dio';
 import { ApiTags } from '@nestjs/swagger';
 import { IPaginationOptions, Pagination } from 'nestjs-typeorm-paginate';
 import { item } from '../entities/item.entity';
@@ -21,7 +23,10 @@ import { UpdateItemDto } from './dto/update-item.dto';
 @Controller('/items')
 @ApiTags('item')
 export class ItemController {
-  constructor(private readonly itemService: ItemService) {}
+  constructor(
+    private readonly itemService: ItemService,
+    private readonly historyService: HistoryService,
+  ) {}
 
   @Post()
   addItem(@Body() body: CreateItemDto) {
@@ -30,18 +35,8 @@ export class ItemController {
 
   @Post('/multiple')
   async addItems(@Body() body: CreateItemDto[]) {
-    const data = await this.itemService.addItems(body);
+    const data = await this.itemService.addItemmultiple(body);
     return { data };
-  }
-
-  @Post('/test')
-  async addItemTest(@Body() body: CreateItemDto[]) {
-    try {
-      const result = await this.itemService.addItemTest(body);
-      return { success: true, data: result };
-    } catch (error) {
-      return { success: false, message: 'Failed to add items', error };
-    }
   }
 
   @Get()
@@ -63,16 +58,29 @@ export class ItemController {
     return { data };
   }
 
+  // @Put('/update-quantity')
+  // async updateQuantity(@Body() body: CreateHistoryDto) {
+  //   return await this.itemService.updateQuantity(body);
+  // }
+
+  @Put('/update-quantity')
+  async updatehistory(@Body() body: CreateHistoryDto) {
+    const data = await this.historyService.addHistorys(body);
+    return { data };
+  }
+
   @Put('/:id')
   async updateItem(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: UpdateItemDto,
   ) {
-    return await this.itemService.updateItem(id, body);
+    const data = await this.itemService.updateItem(id, body);
+    return { data };
   }
 
   @Delete('/:id')
   async removeItem(@Param('id', ParseIntPipe) id: number) {
-    return await this.itemService.remove(id);
+    await this.itemService.removeItem(id);
+    return { data: {} };
   }
 }

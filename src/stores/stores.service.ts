@@ -3,16 +3,15 @@ import { CreateStoreDto } from './dto/create-store.dto';
 import { Stores } from '../entities/stores.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { item } from '../entities/item.entity';
 
 @Injectable()
 export class StoresService {
   constructor(
     @InjectRepository(Stores)
     private storeRepository: Repository<Stores>,
-    @InjectRepository(item)
-    private itemRepository: Repository<item>,
   ) {}
+
+  //-----------------------------------------------------เพิ่มข้อมูลร้านค้า-------------------------------------------------------------//
 
   async addStores(body: CreateStoreDto) {
     try {
@@ -33,9 +32,12 @@ export class StoresService {
     }
   }
 
+  //----------------------------------------------------แสดงร้านค้าทุกร้าน-----------------------------------------------------------//
+
   async getStore() {
     try {
       const data = await this.storeRepository.find({
+        order: { id: 'DESC' },
         where: { isDelete: false },
       });
       return data;
@@ -43,6 +45,8 @@ export class StoresService {
       throw new Error(` ไม่สามารถแสดงผลได้ `);
     }
   }
+
+  //---------------------------------------------------ลบร้านค้า---------------------------------------------------------------------//
 
   async removeStore(id: number) {
     try {
@@ -62,6 +66,8 @@ export class StoresService {
       throw new Error(` ไม่สามารถลบได้ !!`);
     }
   }
+
+  //-----------------------------------------------------แก้ไขข้อมูลร้านค้า-----------------------------------------------------------//
 
   async updateStore(id: number, body: CreateStoreDto) {
     try {

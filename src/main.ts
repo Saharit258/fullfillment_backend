@@ -2,18 +2,20 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as morgan from 'morgan';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
-    .setTitle('Cats example')
-    .setDescription('The cats API description')
+    .setTitle('Fullfillmant')
+    .setDescription('API description')
     .setVersion('1.0')
-    .addTag('cats')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
+
+  app.use(morgan('short'));
 
   app.useGlobalPipes(new ValidationPipe());
   app.enableCors();
