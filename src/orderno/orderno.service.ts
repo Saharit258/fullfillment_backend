@@ -26,39 +26,7 @@ export class OrdernoService {
     try {
       const currentDate = new Date();
 
-      function generateShorderNo() {
-        const letters = generateRandomAlphaNumeric(7);
-        const numbers = generateRandomAlphaNumeric(3);
-        return `${letters}${numbers}`;
-      }
-
-      function generateRandomAlphaNumeric(length: number) {
-        const alphanumeric = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        let result = '';
-        for (let i = 0; i < length; i++) {
-          result += alphanumeric.charAt(
-            Math.floor(Math.random() * alphanumeric.length),
-          );
-        }
-        return result;
-      }
-
-      let orderNoNumber = generateShorderNo();
-
-      let isUnique = false;
-      while (!isUnique) {
-        const existingOrder = await this.orderRepository.findOne({
-          where: { orderNumber: orderNoNumber },
-        });
-        if (!existingOrder) {
-          isUnique = true;
-        } else {
-          orderNoNumber = generateShorderNo();
-        }
-      }
-
       const newOrder = this.orderRepository.create({
-        orderNumber: orderNoNumber,
         customerName: collect.customerName,
         uom: collect.uom,
         cod: collect.cod,
@@ -98,14 +66,16 @@ export class OrdernoService {
 
   async getOrders() {
     const data = await this.ordernoRepository.find({
-      relations: { order: true },
+      relations: { item: true },
     });
     return data;
   }
 
   async getOrderItem() {
     try {
-      const data = await this.orderRepository.find({});
+      const data = await this.orderRepository.find({
+        relations: ['orderno', 'orderno.item'],
+      });
       return data;
     } catch (error) {
       console.log(error);

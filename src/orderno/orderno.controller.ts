@@ -23,8 +23,14 @@ export class OrdernoController {
     return await this.ordernoService.addOrder(collect);
   }
 
-  @Get()
+  @Get('item')
   async getOrderItem() {
+    const data = await this.ordernoService.getOrders();
+    return { data };
+  }
+
+  @Get()
+  async getOrders() {
     const data = await this.ordernoService.getOrderItem();
     return { data };
   }

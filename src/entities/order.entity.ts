@@ -14,9 +14,6 @@ export class Order {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'order_number', nullable: true, type: 'varchar' })
-  orderNumber: string;
-
   @Column({ name: 'customer_name', nullable: true, type: 'varchar' })
   customerName: string;
 
@@ -61,7 +58,4 @@ export class Order {
 
   @OneToMany(() => OrderNo, (orderno) => orderno.order)
   orderno: OrderNo[];
-
-  @JoinTable()
-  items: item[];
 }
