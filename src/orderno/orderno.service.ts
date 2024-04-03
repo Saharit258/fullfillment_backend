@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateOrdernoDto } from './dto/create-orderno.dto';
 import { CreateOrderDto } from '../order/dto/create-order.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindManyOptions, Like, Repository } from 'typeorm';
 import { OrderNo } from '../entities/orderno.entity';
 import { Order } from '../entities/order.entity';
 // import { item } from '../entities/item.entity'; // Corrected import
@@ -96,5 +96,29 @@ export class OrdernoService {
     } catch (error) {
       throw new Error(`ไม่สามารถแก้ไขได้ ${error.message}`);
     }
+  }
+
+  //--------------------------------------------------------searchOrders-----------------------------------------------------------//
+
+  async searchOrders(
+    customerName: string,
+    phoneNumber: string,
+    address: string,
+  ): Promise<Order[]> {
+    let options: FindManyOptions<Order> = {};
+
+    if (customerName) {
+      options.where = { customerName: Like(`%${customerName}%`) };
+    }
+
+    if (phoneNumber) {
+      options.where = { phoneNumber: Like(`%${phoneNumber}%`) };
+    }
+
+    if (address) {
+      options.where = { address: Like(`%${address}%`) };
+    }
+
+    return await this.orderRepository.find(options);
   }
 }
