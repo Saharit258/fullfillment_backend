@@ -9,7 +9,6 @@ export class CreateOrdernoDto extends PartialType(CreateOrderDto) {
   amount: number;
 
   @ApiProperty({ example: [1, 2, 3] })
-  @IsNumber()
   @IsOptional()
   item: number[];
 }

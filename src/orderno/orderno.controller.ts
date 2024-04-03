@@ -20,13 +20,12 @@ export class OrdernoController {
 
   @Post('key')
   async addOrder(@Body() collect: CreateOrdernoDto) {
-    console.log('🚀 ~ OrdernoController ~ addOrder ~ collect:', collect);
     return await this.ordernoService.addOrder(collect);
   }
 
   @Get()
-  async getOrder() {
-    const data = await this.ordernoService.getOrders();
+  async getOrderItem() {
+    const data = await this.ordernoService.getOrderItem();
     return { data };
   }
 }

@@ -34,6 +34,8 @@ import { OrdernoModule } from './orderno/orderno.module';
 
     StoresModule,
 
+    OrderModule,
+
     OrdernoModule,
   ],
 })

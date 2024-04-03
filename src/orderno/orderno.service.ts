@@ -1,3 +1,4 @@
+import { item } from './../entities/item.entity';
 import { Injectable } from '@nestjs/common';
 import { CreateOrdernoDto } from './dto/create-orderno.dto';
 import { CreateOrderDto } from '../order/dto/create-order.dto';
@@ -97,8 +98,17 @@ export class OrdernoService {
 
   async getOrders() {
     const data = await this.ordernoRepository.find({
-      relations: { order: true, item: true },
+      relations: { order: true },
     });
     return data;
+  }
+
+  async getOrderItem() {
+    try {
+      const data = await this.orderRepository.find({});
+      return data;
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
