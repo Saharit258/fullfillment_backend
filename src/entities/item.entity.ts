@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 import { history } from './history.entity';
 import { Stores } from './stores.entity';
-import { Order } from './order.entity';
+import { OrderNo } from './orderno.entity';
 
 @Entity()
 export class item {
@@ -32,6 +32,6 @@ export class item {
   @ManyToOne(() => Stores, (stores) => stores.item)
   stores: Stores;
 
-  @OneToMany(() => Order, (order) => order.item)
-  order: Order[];
+  @OneToMany(() => OrderNo, (orderno) => orderno.item)
+  orderno: OrderNo[];
 }

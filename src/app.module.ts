@@ -5,11 +5,13 @@ import { item } from './entities/item.entity';
 import { history } from './entities/history.entity';
 import { Stores } from './entities/stores.entity';
 import { Order } from './entities/order.entity';
+import { OrderNo } from './entities/orderno.entity';
 import { LotModule } from './lot/lot.module';
 import { ItemModule } from './item/item.module';
 import { HistoryModule } from './history/history.module';
 import { StoresModule } from './stores/stores.module';
 import { OrderModule } from './order/order.module';
+import { OrdernoModule } from './orderno/orderno.module';
 
 @Module({
   imports: [
@@ -20,7 +22,7 @@ import { OrderModule } from './order/order.module';
       username: 'postgres',
       password: '123456',
       database: 'fullfillment',
-      entities: [lot, item, history, Stores, Order],
+      entities: [lot, item, history, Stores, Order, OrderNo],
       synchronize: true,
     }),
 
@@ -32,7 +34,7 @@ import { OrderModule } from './order/order.module';
 
     StoresModule,
 
-    OrderModule,
+    OrdernoModule,
   ],
 })
 export class AppModule {}

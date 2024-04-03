@@ -4,7 +4,9 @@ import {
   PrimaryGeneratedColumn,
   OneToMany,
   ManyToOne,
+  JoinTable,
 } from 'typeorm';
+import { OrderNo } from './orderno.entity';
 import { item } from './item.entity';
 
 @Entity()
@@ -12,8 +14,8 @@ export class Order {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'order_no', nullable: true, type: 'varchar' })
-  orderNo: string;
+  @Column({ name: 'order_number', nullable: true, type: 'varchar' })
+  orderNumber: string;
 
   @Column({ name: 'customer_name', nullable: true, type: 'varchar' })
   customerName: string;
@@ -54,12 +56,12 @@ export class Order {
   @Column({ name: 'country', nullable: true, type: 'varchar' })
   country: string;
 
-  @Column({ name: 'amount', nullable: true, type: 'varchar' })
-  amount: number;
-
   @Column({ name: 'status', nullable: true, type: 'varchar' })
   status: string;
 
-  @ManyToOne(() => item, (item) => item.order)
-  item: item;
+  @OneToMany(() => OrderNo, (orderno) => orderno.order)
+  orderno: OrderNo[];
+
+  @JoinTable()
+  items: item[];
 }
