@@ -38,21 +38,4 @@ export class OrdernoController {
     const data = await this.ordernoService.getOrderItem();
     return { data };
   }
-
-  @Get('search')
-  async searchOrders(@Query() query: OrderFilterDTO) {
-    try {
-      const data = await this.ordernoService.searchOrders(
-        query.customerName,
-        query.phoneNumber,
-        query.address,
-      );
-      return { data };
-    } catch (error) {
-      throw new HttpException(
-        `${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
 }

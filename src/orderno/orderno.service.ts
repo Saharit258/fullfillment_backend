@@ -88,37 +88,4 @@ export class OrdernoService {
       console.log(error);
     }
   }
-
-  //-----------------------------------------------แก้ไขการทำงาน-----------------------------------------------------------------//
-
-  async updateOrder(id: number, bady: CreateOrdernoDto) {
-    try {
-    } catch (error) {
-      throw new Error(`ไม่สามารถแก้ไขได้ ${error.message}`);
-    }
-  }
-
-  //--------------------------------------------------------searchOrders-----------------------------------------------------------//
-
-  async searchOrders(
-    customerName: string,
-    phoneNumber: string,
-    address: string,
-  ): Promise<Order[]> {
-    let options: FindManyOptions<Order> = {};
-
-    if (customerName) {
-      options.where = { customerName: Like(`%${customerName}%`) };
-    }
-
-    if (phoneNumber) {
-      options.where = { phoneNumber: Like(`%${phoneNumber}%`) };
-    }
-
-    if (address) {
-      options.where = { address: Like(`%${address}%`) };
-    }
-
-    return await this.orderRepository.find(options);
-  }
 }
