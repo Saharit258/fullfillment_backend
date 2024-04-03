@@ -16,4 +16,9 @@ export class OrderFilterDTO {
   @IsString()
   @IsOptional()
   address: string;
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  status: string;
 }

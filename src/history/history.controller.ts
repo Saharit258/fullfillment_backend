@@ -17,6 +17,8 @@ import { ApiTags } from '@nestjs/swagger';
 export class HistoryController {
   constructor(private readonly historyService: HistoryService) {}
 
+  //-----------------------------------------------------------Get--------------------------------------------------------------//
+
   @Get('/:itemId')
   async getHistory(@Param('itemId', ParseIntPipe) itemId: number) {
     const data = await this.historyService.getHistoryById(itemId);

@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Connection, QueryRunner, Repository } from 'typeorm';
 import { item } from '../entities/item.entity';
 import { history } from '../entities/history.entity';
-import { CreateItemDto, PageOptionsDto } from './dto/create-item.dto';
+import { CreateItemDto, MultiIds, PageOptionsDto } from './dto/create-item.dto';
 import {
   IPaginationOptions,
   Pagination,
@@ -30,6 +30,8 @@ export class ItemService {
     private connection: Connection,
   ) {}
 
+  //-------------------------------------------เพิ่มสินค้า------------------------------------------------------------------------//
+
   async addItem(body: CreateItemDto) {
     try {
       const newItem = this.itemRepository.create({
@@ -44,6 +46,8 @@ export class ItemService {
       throw new Error(`${error.message}`);
     }
   }
+
+  //-------------------------------------------------เพิ่มสินค้าหลายจำนวน----------------------------------------------------------//
 
   async addItemmultiple(body: CreateItemDto[]) {
     let queryRunner: QueryRunner;
@@ -73,8 +77,10 @@ export class ItemService {
     }
   }
 
-  async getItems() {
-    const getItems = await this.itemRepository.find({
+  //-----------------------------------------------------แสดงข้อมูลสินค้าทั้งหมด-------------------------------------------------------//
+
+  getItems(): Promise<item[]> {
+    const getItems = this.itemRepository.find({
       order: { id: 'DESC' },
       relations: { stores: true, history: { lot: true } },
     });
@@ -96,6 +102,8 @@ export class ItemService {
   //   return paginatedItems;
   // }
 
+  //----------------------------------------------------------แสดงข้อมูลสินค้า1ชิ้น----------------------------------------------------//
+
   async getItem(id: number) {
     const getItem = await this.itemRepository.findOne({
       where: { id },
@@ -103,6 +111,8 @@ export class ItemService {
     });
     return getItem;
   }
+
+  //-----------------------------------------------------------ลบสินค้า-----------------------------------------------------------//
 
   async removeItem(id: number) {
     const findByids = await this.getItem(id);
@@ -127,6 +137,8 @@ export class ItemService {
     return sum;
   }
 
+  //---------------------------------------------------------แก้ไขสินค้า------------------------------------------------------------//
+
   async updateItem(id: number, body: UpdateItemDto) {
     try {
       const foundItem = await this.getItem(id);
@@ -140,6 +152,8 @@ export class ItemService {
       throw new Error(`${error.message} ${id} ไม่พบข้อมูล`);
     }
   }
+
+  //-----------------------------------------------------Quantity---------------------------------------------------------------//
 
   async updateQuantity(body: CreateHistoryDto) {
     const itemToUpdate = await this.getItem(body.item);
@@ -166,6 +180,25 @@ export class ItemService {
       itemToUpdate.quantity = sumQuantity.sum + body.quantity;
       await this.itemRepository.save(itemToUpdate);
       return { saveHistory };
+    }
+  }
+
+  async removeItems(body: MultiIds) {
+    try {
+      const deletedItems = await Promise.all(
+        body.ids.map(async (id) => {
+          const itemToRemove = await this.getItem(id);
+          if (!itemToRemove) {
+            throw new NotFoundException(`Item with ID ${id} not found`);
+          }
+          await this.removeItem(id);
+          return id;
+        }),
+      );
+
+      return deletedItems;
+    } catch (error) {
+      throw new Error(`เกิดข้อผิดพลาดในการลบไอเท็ม: ${error.message}`);
     }
   }
 }

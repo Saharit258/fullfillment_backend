@@ -12,6 +12,9 @@ export class Order {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ name: 'order_no', nullable: true, type: 'varchar' })
+  orderNo: string;
+
   @Column({ name: 'customer_name', nullable: true, type: 'varchar' })
   customerName: string;
 
@@ -53,6 +56,9 @@ export class Order {
 
   @Column({ name: 'amount', nullable: true, type: 'varchar' })
   amount: number;
+
+  @Column({ name: 'status', nullable: true, type: 'varchar' })
+  status: string;
 
   @ManyToOne(() => item, (item) => item.order)
   item: item;

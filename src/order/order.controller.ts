@@ -55,6 +55,7 @@ export class OrderController {
         query.customerName,
         query.phoneNumber,
         query.address,
+        query.status,
       );
       return { data };
     } catch (error) {

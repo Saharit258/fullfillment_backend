@@ -60,3 +60,8 @@ export class PageOptionsDto {
     return (this.page - 1) * this.limit;
   }
 }
+
+export class MultiIds {
+  @ApiProperty({ example: [1, 2, 3] })
+  ids: number[];
+}

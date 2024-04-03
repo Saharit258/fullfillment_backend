@@ -12,13 +12,14 @@ import {
 } from '@nestjs/common';
 import { ItemService } from './item.service';
 import { HistoryService } from '../history/history.service';
-import { CreateItemDto, PageOptionsDto } from './dto/create-item.dto';
+import { CreateItemDto, MultiIds, PageOptionsDto } from './dto/create-item.dto';
 import { CreateHistoryDto } from '../history/dto/create-history.dio';
 import { ApiTags } from '@nestjs/swagger';
 import { IPaginationOptions, Pagination } from 'nestjs-typeorm-paginate';
 import { item } from '../entities/item.entity';
 import { Connection } from 'typeorm';
 import { UpdateItemDto } from './dto/update-item.dto';
+import { query } from 'express';
 
 @Controller('/items')
 @ApiTags('item')
@@ -27,6 +28,8 @@ export class ItemController {
     private readonly itemService: ItemService,
     private readonly historyService: HistoryService,
   ) {}
+
+  //--------------------------------------------------------Post------------------------------------------------------------------//
 
   @Post()
   addItem(@Body() body: CreateItemDto) {
@@ -38,6 +41,8 @@ export class ItemController {
     const data = await this.itemService.addItemmultiple(body);
     return { data };
   }
+
+  //-------------------------------------------------------Get-------------------------------------------------------------------//
 
   @Get()
   async getItemss() {
@@ -63,10 +68,22 @@ export class ItemController {
   //   return await this.itemService.updateQuantity(body);
   // }
 
+  //------------------------------------------------------------Put---------------------------------------------------------------//
+
   @Put('/update-quantity')
   async updatehistory(@Body() body: CreateHistoryDto) {
     const data = await this.historyService.addHistorys(body);
     return { data };
+  }
+
+  @Put('/update-quantity-multiple')
+  async addHistoryBatch(@Body() histories: CreateHistoryDto[]) {
+    console.log(
+      '🚀 ~ ItemController ~ addHistoryBatch ~ histories:',
+      histories,
+    );
+    const result = await this.historyService.addHistoryss(histories);
+    return { result };
   }
 
   @Put('/:id')
@@ -76,6 +93,18 @@ export class ItemController {
   ) {
     const data = await this.itemService.updateItem(id, body);
     return { data };
+  }
+
+  //---------------------------------------------------------Delete--------------------------------------------------------------//
+
+  @Delete('/remove-multiple')
+  async removeItems(@Body() body: MultiIds) {
+    try {
+      await this.itemService.removeItems(body);
+      return { data: {} };
+    } catch (error) {
+      return { error: error.message };
+    }
   }
 
   @Delete('/:id')
