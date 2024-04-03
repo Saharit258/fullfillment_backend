@@ -62,10 +62,10 @@ export class CreateOrderDto {
   @IsOptional()
   country: string;
 
-  @ApiProperty()
-  @IsNumber()
-  @IsOptional()
-  amount: number;
+  // @ApiProperty()
+  // @IsNumber()
+  // @IsOptional()
+  // amount: number;
 
   // @ApiProperty()
   // @IsOptional()

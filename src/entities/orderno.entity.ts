@@ -13,8 +13,8 @@ export class OrderNo {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'amount', nullable: true, type: 'varchar' })
-  amount: number;
+  @Column({ name: 'quantity', nullable: true, type: 'varchar' })
+  quantity: number;
 
   @ManyToOne(() => item, (item) => item.orderno)
   item: item;

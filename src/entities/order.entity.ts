@@ -58,4 +58,7 @@ export class Order {
 
   @OneToMany(() => OrderNo, (orderno) => orderno.order)
   orderno: OrderNo[];
+
+  @Column({ name: 'quantity', default: 0 })
+  quantity: number;
 }

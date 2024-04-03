@@ -40,23 +40,30 @@ export class OrdernoService {
         district: collect.district,
         parish: collect.parish,
         country: collect.country,
-        amount: collect.amount,
+        quantity: 0,
         status: OrderStatus.NotChecked,
       } as Partial<Order>);
 
       const savedOrder = await this.orderRepository.save(newOrder);
 
-      const newOrderNo = collect.item.map((itemId) => {
-        return this.ordernoRepository.create({
-          amount: collect.amount,
+      let totalAmount = 0;
+
+      const newOrderNos = collect.item.map((item) => {
+        totalAmount += item.qty;
+        const newOrderNo = this.ordernoRepository.create({
+          quantity: item.qty,
           order: savedOrder,
-          item: { id: itemId },
+          item: { id: item.itemId },
         });
+        return newOrderNo;
       });
 
-      await this.ordernoRepository.save(newOrderNo);
+      await this.ordernoRepository.save(newOrderNos);
 
-      return savedOrder;
+      savedOrder.quantity = totalAmount;
+      await this.orderRepository.save(savedOrder);
+
+      return newOrderNos;
     } catch (error) {
       throw new Error(`Unable to add order: ${error.message}`);
     }
@@ -79,6 +86,15 @@ export class OrdernoService {
       return data;
     } catch (error) {
       console.log(error);
+    }
+  }
+
+  //-----------------------------------------------แก้ไขการทำงาน-----------------------------------------------------------------//
+
+  async updateOrder(id: number, bady: CreateOrdernoDto) {
+    try {
+    } catch (error) {
+      throw new Error(`ไม่สามารถแก้ไขได้ ${error.message}`);
     }
   }
 }
