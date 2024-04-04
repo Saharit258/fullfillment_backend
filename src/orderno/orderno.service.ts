@@ -1,4 +1,4 @@
-import { item } from './../entities/item.entity';
+import { Item } from './../entities/item.entity';
 import { Injectable } from '@nestjs/common';
 import { CreateOrdernoDto } from './dto/create-orderno.dto';
 import { CreateOrderDto } from '../order/dto/create-order.dto';
@@ -40,6 +40,7 @@ export class OrdernoService {
         district: collect.district,
         parish: collect.parish,
         country: collect.country,
+        quantity: 0,
         status: OrderStatus.NotChecked,
       } as Partial<Order>);
 
@@ -72,7 +73,7 @@ export class OrdernoService {
 
   async getOrderItem() {
     const data = await this.ordernoRepository.find({
-      relations: { item: true },
+      relations: ['item', 'item.stores'],
       order: { id: 'DESC' },
     });
     return data;

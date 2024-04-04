@@ -5,8 +5,8 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Connection, QueryRunner, Repository } from 'typeorm';
-import { item } from '../entities/item.entity';
-import { history } from '../entities/history.entity';
+import { Item } from '../entities/item.entity';
+import { History } from '../entities/history.entity';
 import { CreateItemDto, MultiIds, PageOptionsDto } from './dto/create-item.dto';
 import {
   IPaginationOptions,
@@ -21,10 +21,10 @@ import { CreateHistoryDto } from '../history/dto/create-history.dio';
 @Injectable()
 export class ItemService {
   constructor(
-    @InjectRepository(item)
-    private itemRepository: Repository<item>,
-    @InjectRepository(history)
-    private historyRepository: Repository<history>,
+    @InjectRepository(Item)
+    private itemRepository: Repository<Item>,
+    @InjectRepository(History)
+    private historyRepository: Repository<History>,
     @InjectRepository(Stores)
     private storesRepository: Repository<Stores>,
     private connection: Connection,
@@ -57,7 +57,7 @@ export class ItemService {
       await queryRunner.startTransaction();
 
       for (const itemData of body) {
-        await queryRunner.manager.getRepository(item).save({
+        await queryRunner.manager.getRepository(Item).save({
           sku: itemData.sku,
           name: itemData.name,
           details: itemData.details,
@@ -79,7 +79,7 @@ export class ItemService {
 
   //-----------------------------------------------------แสดงข้อมูลสินค้าทั้งหมด-------------------------------------------------------//
 
-  getItems(): Promise<item[]> {
+  getItems(): Promise<Item[]> {
     const getItems = this.itemRepository.find({
       order: { id: 'DESC' },
       relations: { stores: true, history: { lot: true } },
@@ -164,7 +164,6 @@ export class ItemService {
     const currentDate = new Date();
 
     const newhistory = this.historyRepository.create({
-      order: body.order,
       outDate: currentDate,
       quantity: body.quantity,
       remark: body.remark,

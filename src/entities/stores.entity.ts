@@ -1,5 +1,5 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { item } from './item.entity';
+import { Item } from './item.entity';
 
 @Entity()
 export class Stores {
@@ -32,6 +32,6 @@ export class Stores {
   })
   isDelete: boolean;
 
-  @OneToMany(() => item, (item) => item.stores)
-  item: item[];
+  @OneToMany(() => Item, (item) => item.stores)
+  item: Item[];
 }

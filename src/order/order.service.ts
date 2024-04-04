@@ -13,8 +13,8 @@ import { ApiOperation } from '@nestjs/swagger';
 import { OrderStatusFilterDTO } from './dto/orderstatus-filter.dto';
 import { OrderNo } from '../entities/orderno.entity';
 import { OrderStatus } from '../orderno/dto/order-enum';
-import { item } from '../entities/item.entity';
-import { history } from '../entities/history.entity';
+import { Item } from '../entities/item.entity';
+import { History } from '../entities/history.entity';
 
 @Injectable()
 export class OrderService {
@@ -23,10 +23,10 @@ export class OrderService {
     private orderRepository: Repository<Order>,
     @InjectRepository(OrderNo)
     private orderNoRepository: Repository<OrderNo>,
-    @InjectRepository(item)
-    private itemRepository: Repository<item>,
-    @InjectRepository(history)
-    private historyRepository: Repository<history>,
+    @InjectRepository(Item)
+    private itemRepository: Repository<Item>,
+    @InjectRepository(History)
+    private historyRepository: Repository<History>,
   ) {}
 
   async getOrder() {
@@ -102,7 +102,7 @@ export class OrderService {
       const currentDate = new Date();
 
       for (const orderNo of orderNos) {
-        const historyEntry = new history();
+        const historyEntry = new History();
         historyEntry.outDate = currentDate;
         historyEntry.quantity = orderNo.quantity;
         historyEntry.item = orderNo.item;

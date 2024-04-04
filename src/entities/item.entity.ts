@@ -5,12 +5,12 @@ import {
   OneToMany,
   ManyToOne,
 } from 'typeorm';
-import { history } from './history.entity';
+import { History } from './history.entity';
 import { Stores } from './stores.entity';
 import { OrderNo } from './orderno.entity';
 
 @Entity()
-export class item {
+export class Item {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -26,8 +26,8 @@ export class item {
   @Column({ name: 'quantity', nullable: true, type: 'int4' })
   quantity: number;
 
-  @OneToMany(() => history, (history) => history.item)
-  history: history[];
+  @OneToMany(() => History, (history) => history.item)
+  history: History[];
 
   @ManyToOne(() => Stores, (stores) => stores.item)
   stores: Stores;

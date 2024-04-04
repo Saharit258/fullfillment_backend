@@ -7,7 +7,7 @@ import {
   JoinTable,
 } from 'typeorm';
 import { OrderNo } from './orderno.entity';
-import { item } from './item.entity';
+import { Item } from './item.entity';
 
 @Entity()
 export class Order {

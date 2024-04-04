@@ -6,22 +6,22 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
-import { history } from '../entities/history.entity';
+import { History } from '../entities/history.entity';
 import { CreateHistoryDto } from './dto/create-history.dio';
-import { item } from '../entities/item.entity';
+import { Item } from '../entities/item.entity';
 
 @Injectable()
 export class HistoryService {
   constructor(
-    @InjectRepository(history)
-    private historyRepository: Repository<history>,
-    @InjectRepository(item)
-    private itemRepository: Repository<item>,
+    @InjectRepository(History)
+    private historyRepository: Repository<History>,
+    @InjectRepository(Item)
+    private itemRepository: Repository<Item>,
   ) {}
 
   //------------------------------------------------------แสดงประวัติ-------------------------------------------------------------//
 
-  async getHistorys() {
+  async getHistorys(): Promise<History[]> {
     const getHistorys = await this.historyRepository.find({
       order: { id: 'DESC' },
       relations: {
@@ -35,7 +35,7 @@ export class HistoryService {
 
   //---------------------------------------------------แสดงข้อมูลตามไอดีสินค้าโดยการใช้Option------------------------------------------//
 
-  async getHistory(option: FindOneOptions) {
+  async getHistory(option: FindOneOptions): Promise<History> {
     const getHistory = await this.historyRepository.findOne(option);
     return getHistory;
   }
@@ -84,7 +84,6 @@ export class HistoryService {
     const currentDate = new Date();
 
     const newhistory = this.historyRepository.create({
-      order: body.order,
       outDate: currentDate,
       quantity: body.quantity,
       remark: body.remark,
@@ -114,7 +113,6 @@ export class HistoryService {
       }
 
       const newHistory = this.historyRepository.create({
-        order: body.order,
         outDate: currentDate,
         quantity: body.quantity,
         remark: body.remark,

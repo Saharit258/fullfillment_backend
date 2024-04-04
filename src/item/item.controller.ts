@@ -16,7 +16,7 @@ import { CreateItemDto, MultiIds, PageOptionsDto } from './dto/create-item.dto';
 import { CreateHistoryDto } from '../history/dto/create-history.dio';
 import { ApiTags } from '@nestjs/swagger';
 import { IPaginationOptions, Pagination } from 'nestjs-typeorm-paginate';
-import { item } from '../entities/item.entity';
+import { Item } from '../entities/item.entity';
 import { Connection } from 'typeorm';
 import { UpdateItemDto } from './dto/update-item.dto';
 import { query } from 'express';

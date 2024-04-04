@@ -7,19 +7,9 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { item } from 'src/entities/item.entity';
+import { Item } from 'src/entities/item.entity';
 
 export class CreateHistoryDto {
-  @ApiProperty()
-  @IsString()
-  @IsOptional()
-  order: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsOptional()
-  note: string;
-
   @ApiProperty()
   @IsNumber()
   @IsOptional()

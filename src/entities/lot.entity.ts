@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
-import { history } from './history.entity';
+import { History } from './history.entity';
 
 @Entity()
 export class lot {
@@ -15,6 +15,6 @@ export class lot {
   @Column({ name: 'quantity', nullable: true, type: 'int4' })
   quantity: number;
 
-  @OneToMany(() => history, (history) => history.id)
-  history: history[];
+  @OneToMany(() => History, (history) => history.id)
+  history: History[];
 }

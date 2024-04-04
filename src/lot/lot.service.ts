@@ -2,8 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { lot } from '../entities/lot.entity';
-import { history } from 'src/entities/history.entity';
-import { item } from '../entities/item.entity';
+import { History } from 'src/entities/history.entity';
+import { Item } from '../entities/item.entity';
 import { CreateLotDto } from './dto/create-lot.dto';
 import { CreateItemDto } from '../item/dto/create-item.dto';
 import { CreateHistoryDto } from '../history/dto/create-history.dio';
@@ -13,10 +13,10 @@ export class LotService {
   constructor(
     @InjectRepository(lot)
     private lotRepository: Repository<lot>,
-    @InjectRepository(history)
-    private historyRepository: Repository<history>,
-    @InjectRepository(item)
-    private itemRepository: Repository<item>,
+    @InjectRepository(History)
+    private historyRepository: Repository<History>,
+    @InjectRepository(Item)
+    private itemRepository: Repository<Item>,
   ) {}
 
   async addLot(body: CreateLotDto) {

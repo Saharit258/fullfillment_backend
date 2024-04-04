@@ -7,11 +7,11 @@ import {
   ManyToMany,
   JoinTable,
 } from 'typeorm';
-import { item } from './item.entity';
+import { Item } from './item.entity';
 import { lot } from './lot.entity';
 
 @Entity()
-export class history {
+export class History {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -27,8 +27,8 @@ export class history {
   @Column({ name: 'remark', nullable: true, type: 'varchar' })
   remark: string;
 
-  @ManyToOne(() => item, (item) => item.history)
-  item: item;
+  @ManyToOne(() => Item, (item) => item.history)
+  item: Item;
 
   @ManyToOne(() => lot, (lot) => lot.history)
   lot: lot;
