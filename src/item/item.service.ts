@@ -32,7 +32,7 @@ export class ItemService {
 
   //-------------------------------------------เพิ่มสินค้า------------------------------------------------------------------------//
 
-  async addItem(body: CreateItemDto) {
+  async addItem(body: CreateItemDto): Promise<Item> {
     try {
       const newItem = this.itemRepository.create({
         sku: body.sku,
@@ -49,7 +49,7 @@ export class ItemService {
 
   //-------------------------------------------------เพิ่มสินค้าหลายจำนวน----------------------------------------------------------//
 
-  async addItemmultiple(body: CreateItemDto[]) {
+  async addItemmultiple(body: CreateItemDto[]): Promise<CreateItemDto[]> {
     let queryRunner: QueryRunner;
     try {
       queryRunner = this.connection.createQueryRunner();
@@ -104,7 +104,7 @@ export class ItemService {
 
   //----------------------------------------------------------แสดงข้อมูลสินค้า1ชิ้น----------------------------------------------------//
 
-  async getItem(id: number) {
+  async getItem(id: number): Promise<Item> {
     const getItem = await this.itemRepository.findOne({
       where: { id },
       relations: { stores: true, history: { lot: true } },
@@ -114,7 +114,7 @@ export class ItemService {
 
   //-----------------------------------------------------------ลบสินค้า-----------------------------------------------------------//
 
-  async removeItem(id: number) {
+  async removeItem(id: number): Promise<boolean> {
     const findByids = await this.getItem(id);
 
     const history = await this.historyRepository.find({
@@ -139,7 +139,7 @@ export class ItemService {
 
   //---------------------------------------------------------แก้ไขสินค้า------------------------------------------------------------//
 
-  async updateItem(id: number, body: UpdateItemDto) {
+  async updateItem(id: number, body: UpdateItemDto): Promise<Item> {
     try {
       const foundItem = await this.getItem(id);
       foundItem.sku = body.sku;
@@ -153,36 +153,9 @@ export class ItemService {
     }
   }
 
-  //-----------------------------------------------------Quantity---------------------------------------------------------------//
+  //-----------------------------------------------------removeItems---------------------------------------------------------------//
 
-  async updateQuantity(body: CreateHistoryDto) {
-    const itemToUpdate = await this.getItem(body.item);
-    if (!itemToUpdate) {
-      throw new NotFoundException(`Item with ID not found`);
-    }
-
-    const currentDate = new Date();
-
-    const newhistory = this.historyRepository.create({
-      outDate: currentDate,
-      quantity: body.quantity,
-      remark: body.remark,
-      item: { id: body.item },
-    });
-
-    const sumQuantity = await this.summaryQuantity(itemToUpdate.id);
-
-    if (sumQuantity.sum + body.quantity < 0) {
-      throw new BadRequestException('จำนวนของไม่พอ');
-    } else {
-      const saveHistory = await this.historyRepository.save(newhistory);
-      itemToUpdate.quantity = sumQuantity.sum + body.quantity;
-      await this.itemRepository.save(itemToUpdate);
-      return { saveHistory };
-    }
-  }
-
-  async removeItems(body: MultiIds) {
+  async removeItems(body: MultiIds): Promise<number[]> {
     try {
       const deletedItems = await Promise.all(
         body.ids.map(async (id) => {

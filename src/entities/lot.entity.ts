@@ -2,7 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { History } from './history.entity';
 
 @Entity()
-export class lot {
+export class Lot {
   @PrimaryGeneratedColumn()
   id: number;
 

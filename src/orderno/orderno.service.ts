@@ -22,7 +22,7 @@ export class OrdernoService {
 
   //------------------------------------------------เพิ่มข้อมูล-----------------------------------------------------------------------//
 
-  async addOrder(collect: CreateOrdernoDto) {
+  async addOrder(collect: CreateOrdernoDto): Promise<OrderNo[]> {
     try {
       const currentDate = new Date();
 
@@ -71,7 +71,7 @@ export class OrdernoService {
 
   //----------------------------------------------------แสดงข้อมูล----------------------------------------------------------------//
 
-  async getOrderItem() {
+  async getOrderItem(): Promise<OrderNo[]> {
     const data = await this.ordernoRepository.find({
       relations: ['item', 'item.stores'],
       order: { id: 'DESC' },

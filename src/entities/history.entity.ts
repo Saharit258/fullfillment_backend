@@ -8,7 +8,7 @@ import {
   JoinTable,
 } from 'typeorm';
 import { Item } from './item.entity';
-import { lot } from './lot.entity';
+import { Lot } from './lot.entity';
 
 @Entity()
 export class History {
@@ -30,6 +30,6 @@ export class History {
   @ManyToOne(() => Item, (item) => item.history)
   item: Item;
 
-  @ManyToOne(() => lot, (lot) => lot.history)
-  lot: lot;
+  @ManyToOne(() => Lot, (lot) => lot.history)
+  lot: Lot;
 }

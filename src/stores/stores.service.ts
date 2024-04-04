@@ -13,7 +13,7 @@ export class StoresService {
 
   //-----------------------------------------------------เพิ่มข้อมูลร้านค้า-------------------------------------------------------------//
 
-  async addStores(body: CreateStoreDto) {
+  async addStores(body: CreateStoreDto): Promise<Stores> {
     try {
       const addStores = this.storeRepository.create({
         name: body.name,
@@ -34,7 +34,7 @@ export class StoresService {
 
   //----------------------------------------------------แสดงร้านค้าทุกร้าน-----------------------------------------------------------//
 
-  async getStore() {
+  async getStore(): Promise<Stores[]> {
     try {
       const data = await this.storeRepository.find({
         order: { id: 'DESC' },
@@ -48,7 +48,7 @@ export class StoresService {
 
   //---------------------------------------------------ลบร้านค้า---------------------------------------------------------------------//
 
-  async removeStore(id: number) {
+  async removeStore(id: number): Promise<boolean> {
     try {
       const storeToRemove = await this.storeRepository.findOne({
         where: { id },
@@ -69,7 +69,7 @@ export class StoresService {
 
   //-----------------------------------------------------แก้ไขข้อมูลร้านค้า-----------------------------------------------------------//
 
-  async updateStore(id: number, body: CreateStoreDto) {
+  async updateStore(id: number, body: CreateStoreDto): Promise<Stores> {
     try {
       const updateResult = await this.storeRepository.update({ id }, body);
       if (updateResult.affected === 0) {

@@ -29,7 +29,9 @@ export class OrderService {
     private historyRepository: Repository<History>,
   ) {}
 
-  async getOrder() {
+  //-----------------------------------------------------getOrder-----------------------------------------------------------------//
+
+  async getOrder(): Promise<Order[]> {
     try {
       const data = await this.orderRepository.find({
         relations: ['orderno', 'orderno.item'],
@@ -43,7 +45,7 @@ export class OrderService {
 
   //-------------------------------------------------------getOrderById------------------------------------------------------------//
 
-  async getOrderById(id: number) {
+  async getOrderById(id: number): Promise<Order> {
     const getOrderById = await this.orderRepository.findOne({
       where: { id },
     });
@@ -116,6 +118,7 @@ export class OrderService {
   //--------------------------------------------------------searchOrders-----------------------------------------------------------//
 
   async searchOrders(search: string): Promise<Order[]> {
+    console.log('🚀 ~ OrderService ~ searchOrders ~ Order:', Order);
     const options: FindManyOptions<Order> = {
       where: [
         { customerName: Like(`%${search}%`) },
@@ -146,7 +149,7 @@ export class OrderService {
 
   //-----------------------------------------------------Delete-----------------------------------------------------------------//
 
-  async removeOrder(id: number) {
+  async removeOrder(id: number): Promise<boolean> {
     const order = await this.getOrderById(id);
     if (!order) {
       throw new NotFoundException(`Order with ID ${id} not found.`);

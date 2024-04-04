@@ -57,7 +57,7 @@ export class HistoryService {
   }
 
   //-----------------------------------------------------บวกในข้อมูล-------------------------------------------------------------//
-  async summaryQuantity(id: number) {
+  async summaryQuantity(id: number): Promise<any> {
     const sum = await this.historyRepository
       .createQueryBuilder('history')
       .select('SUM(history.quantity)::int4', 'sum')
@@ -66,7 +66,7 @@ export class HistoryService {
     return sum;
   }
 
-  async getItems(id: number) {
+  async getItems(id: number): Promise<Item> {
     const getItems1 = await this.itemRepository.findOne({
       where: { id },
     });
@@ -75,7 +75,9 @@ export class HistoryService {
 
   //-----------------------------------------------------แก้ไขจำนวนสินค้า----------------------------------------------------------//
 
-  async addHistorys(body: CreateHistoryDto) {
+  async addHistorys(body: CreateHistoryDto): Promise<{
+    saveHistory: History;
+  }> {
     const itemToUpdate = await this.getItems(body.item);
     if (!itemToUpdate) {
       throw new NotFoundException(`Item with ID not found`);
@@ -103,7 +105,9 @@ export class HistoryService {
   }
 
   //--------------------------------------------------------addHistory หลายตัว---------------------------------------------------//
-  async addHistoryss(bodies: CreateHistoryDto[]) {
+  async addHistoryss(bodies: CreateHistoryDto[]): Promise<{
+    savedHistories: History[];
+  }> {
     const currentDate = new Date();
 
     const promises = bodies.map(async (body) => {

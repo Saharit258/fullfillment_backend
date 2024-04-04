@@ -13,6 +13,7 @@ import {
 import { StoresService } from './stores.service';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { Stores } from 'src/entities/stores.entity';
 
 @Controller('stores')
 @ApiTags('stores')
@@ -30,7 +31,9 @@ export class StoresController {
   }
 
   @Get()
-  async getStore() {
+  async getStore(): Promise<{
+    data: Stores[];
+  }> {
     try {
       const data = await this.storesService.getStore();
       return { data };
@@ -43,7 +46,9 @@ export class StoresController {
   async updateStore(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: CreateStoreDto,
-  ) {
+  ): Promise<{
+    data: Stores;
+  }> {
     try {
       const data = await this.storesService.updateStore(id, body);
       return { data };
@@ -53,7 +58,9 @@ export class StoresController {
   }
 
   @Delete('/:id')
-  async removeStore(@Param('id', ParseIntPipe) id: number) {
+  async removeStore(@Param('id', ParseIntPipe) id: number): Promise<{
+    data: {};
+  }> {
     try {
       await this.storesService.removeStore(id);
       return { data: {} };
