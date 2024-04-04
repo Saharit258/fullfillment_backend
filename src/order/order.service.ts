@@ -13,6 +13,8 @@ import { ApiOperation } from '@nestjs/swagger';
 import { OrderStatusFilterDTO } from './dto/orderstatus-filter.dto';
 import { OrderNo } from '../entities/orderno.entity';
 import { OrderStatus } from '../orderno/dto/order-enum';
+import { item } from '../entities/item.entity';
+import { history } from '../entities/history.entity';
 
 @Injectable()
 export class OrderService {
@@ -21,6 +23,10 @@ export class OrderService {
     private orderRepository: Repository<Order>,
     @InjectRepository(OrderNo)
     private orderNoRepository: Repository<OrderNo>,
+    @InjectRepository(item)
+    private itemRepository: Repository<item>,
+    @InjectRepository(history)
+    private historyRepository: Repository<history>,
   ) {}
 
   async getOrder() {
@@ -72,8 +78,37 @@ export class OrderService {
     if (!order) {
       throw new NotFoundException(`Order with ID ${id} not found.`);
     }
+
+    const previousStatus = order.status;
+
     order.status = body.status;
     await this.orderRepository.save(order);
+
+    if (
+      body.status === OrderStatus.OutOfStock &&
+      previousStatus !== OrderStatus.OutOfStock
+    ) {
+      const orderNos = await this.orderNoRepository.find({
+        where: { order: order },
+        relations: ['item'],
+      });
+
+      for (const orderNo of orderNos) {
+        const item = orderNo.item;
+        item.quantity -= orderNo.quantity;
+        await this.itemRepository.save(item);
+      }
+
+      const currentDate = new Date();
+
+      for (const orderNo of orderNos) {
+        const historyEntry = new history();
+        historyEntry.outDate = currentDate;
+        historyEntry.quantity = orderNo.quantity;
+        historyEntry.item = orderNo.item;
+        await this.historyRepository.save(historyEntry);
+      }
+    }
 
     return order;
   }

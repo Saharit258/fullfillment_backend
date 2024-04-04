@@ -137,4 +137,22 @@ export class OrderController {
       );
     }
   }
+
+  //-------------------------------------------------------sum--------------------------------------------------------------------//
+
+  // @Get(':id/summary-quantity')
+  // async getSummaryQuantity(
+  //   @Param('orderId', ParseIntPipe) orderId: number,
+  //   @Param('itemId', ParseIntPipe) itemId: number,
+  // ) {
+  //   try {
+  //     const sum = await this.orderService.summaryQuantity(orderId, itemId);
+  //     return { sum };
+  //   } catch (error) {
+  //     throw new HttpException(
+  //       `${error.message}`,
+  //       HttpStatus.INTERNAL_SERVER_ERROR,
+  //     );
+  //   }
+  // }
 }
