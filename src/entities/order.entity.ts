@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { OrderNo } from './orderno.entity';
 import { Item } from './item.entity';
+import { HistoryOrder } from './historyorder.entity';
 
 @Entity()
 export class Order {
@@ -58,6 +59,9 @@ export class Order {
 
   @OneToMany(() => OrderNo, (orderno) => orderno.order)
   orderno: OrderNo[];
+
+  @OneToMany(() => HistoryOrder, (historyOrder) => historyOrder.order)
+  historyOrder: HistoryOrder[];
 
   @Column({ name: 'quantity', default: 0 })
   quantity: number;

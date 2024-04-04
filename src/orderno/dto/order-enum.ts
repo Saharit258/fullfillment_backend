@@ -1,8 +1,10 @@
 export enum OrderStatus {
-  NotChecked = 'NotChecked',
-  two = 'InProgress',
-  Packing = 'Packing',
-  OutOfStock = 'OutOfStock',
-  Delivered = 'Delivered',
-  Returned = 'Returned',
+  NOTCHECKED = 'NotChecked',
+  INPROGRESS = 'InProgress',
+  PACKING = 'Packing',
+  OUTOFSTOCK = 'OutOfStock',
+  DELIVERED = 'Delivered',
+  RETURNED = 'Returned',
 }
+
+//NOTCHECKED

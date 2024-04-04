@@ -96,12 +96,12 @@ export class HistoryService {
 
     if (sumQuantity.sum + body.quantity < 0) {
       throw new BadRequestException('จำนวนของไม่พอ');
-    } else {
-      const saveHistory = await this.historyRepository.save(newhistory);
-      itemToUpdate.quantity = sumQuantity.sum + body.quantity;
-      await this.itemRepository.save(itemToUpdate);
-      return { saveHistory };
     }
+
+    const saveHistory = await this.historyRepository.save(newhistory);
+    itemToUpdate.quantity = sumQuantity.sum + body.quantity;
+    await this.itemRepository.save(itemToUpdate);
+    return { saveHistory };
   }
 
   //--------------------------------------------------------addHistory หลายตัว---------------------------------------------------//

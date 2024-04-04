@@ -41,37 +41,30 @@ export class OrderController {
 
   //-------------------------------------------------------------get-------------------------------------------------------------//
 
+  // @Get()
+  // async getOrder() {
+  //   const data = await this.orderService.getOrder();
+  //   return { data };
+  // }
+
   @Get()
-  async getOrder() {
-    const data = await this.orderService.getOrder();
+  async queryBilder(@Query() body: OrderFilterDTO) {
+    const data = await this.orderService.queryBilder(body);
     return { data };
   }
 
-  @Get('search')
-  async searchOrders(@Query('search') search: string) {
-    try {
-      const data = await this.orderService.searchOrders(search);
-      return { data };
-    } catch (error) {
-      throw new HttpException(
-        `${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  @Get('search/status')
-  async searchOrderStatus(@Query() searchs: OrderStatusFilterDTO) {
-    try {
-      const data = await this.orderService.searchOrderStatus(searchs);
-      return { data };
-    } catch (error) {
-      throw new HttpException(
-        `${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
+  // @Get('search/status')
+  // async searchOrderStatus(@Query() searchs: OrderStatusFilterDTO) {
+  //   try {
+  //     const data = await this.orderService.searchOrderStatus(searchs);
+  //     return { data };
+  //   } catch (error) {
+  //     throw new HttpException(
+  //       `${error.message}`,
+  //       HttpStatus.INTERNAL_SERVER_ERROR,
+  //     );
+  //   }
+  // }
 
   @Get('/:id')
   async getOrderById(@Param('id', ParseIntPipe) id: number) {
@@ -84,6 +77,12 @@ export class OrderController {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  @Get('history-status/:orderId')
+  async getHistoryOrder(@Param('orderId', ParseIntPipe) orderId: number) {
+    const data = await this.orderService.getHistoryOrderByOrderId(orderId);
+    return { data };
   }
 
   //----------------------------------------------------Put-----------------------------------------------------------------------//

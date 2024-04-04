@@ -15,6 +15,8 @@ import { OrderNo } from '../entities/orderno.entity';
 import { OrderStatus } from '../orderno/dto/order-enum';
 import { Item } from '../entities/item.entity';
 import { History } from '../entities/history.entity';
+import { HistoryOrder } from '../entities/historyorder.entity';
+import { OrderFilterDTO } from 'src/orderno/dto/order-filter.dto';
 
 @Injectable()
 export class OrderService {
@@ -27,27 +29,30 @@ export class OrderService {
     private itemRepository: Repository<Item>,
     @InjectRepository(History)
     private historyRepository: Repository<History>,
+    @InjectRepository(HistoryOrder)
+    private historyOrderRepository: Repository<HistoryOrder>,
   ) {}
 
   //-----------------------------------------------------getOrder-----------------------------------------------------------------//
 
-  async getOrder(): Promise<Order[]> {
-    try {
-      const data = await this.orderRepository.find({
-        relations: ['orderno', 'orderno.item'],
-        order: { id: 'DESC' },
-      });
-      return data;
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  // async getOrder(): Promise<Order[]> {
+  //   try {
+  //     const data = await this.orderRepository.find({
+  //       relations: ['orderno', 'orderno.item'],
+  //       order: { id: 'DESC' },
+  //     });
+  //     return data;
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
 
   //-------------------------------------------------------getOrderById------------------------------------------------------------//
 
   async getOrderById(id: number): Promise<Order> {
     const getOrderById = await this.orderRepository.findOne({
       where: { id },
+      relations: { orderno: true },
     });
     return getOrderById;
   }
@@ -63,6 +68,20 @@ export class OrderService {
       Object.assign(order, { ...body });
 
       await this.orderRepository.save(order);
+      await this.orderNoRepository.remove(order.orderno);
+
+      let total = 0;
+
+      const addorderno = body.item.map((item) => {
+        total + item.qty;
+        return this.orderNoRepository.create({
+          quantity: item.qty,
+          order: order,
+          item: { id: item.itemId },
+        });
+      });
+
+      await this.orderNoRepository.save(addorderno);
 
       return order;
     } catch (error) {
@@ -87,8 +106,8 @@ export class OrderService {
     await this.orderRepository.save(order);
 
     if (
-      body.status === OrderStatus.OutOfStock &&
-      previousStatus !== OrderStatus.OutOfStock
+      body.status === OrderStatus.OUTOFSTOCK &&
+      previousStatus !== OrderStatus.OUTOFSTOCK
     ) {
       const orderNos = await this.orderNoRepository.find({
         where: { order: order },
@@ -112,30 +131,137 @@ export class OrderService {
       }
     }
 
+    if (
+      body.status === OrderStatus.RETURNED &&
+      previousStatus !== OrderStatus.RETURNED
+    ) {
+      const orderNos = await this.orderNoRepository.find({
+        where: { order: order },
+        relations: ['item'],
+      });
+
+      for (const orderNo of orderNos) {
+        const item = orderNo.item;
+        item.quantity += orderNo.quantity;
+        await this.itemRepository.save(item);
+      }
+
+      const currentDate = new Date();
+
+      for (const orderNo of orderNos) {
+        const historyEntry = new History();
+        historyEntry.outDate = currentDate;
+        historyEntry.quantity = orderNo.quantity;
+        historyEntry.item = orderNo.item;
+        await this.historyRepository.save(historyEntry);
+      }
+    }
+
+    const currentDate = new Date();
+
+    const addHistoryOrder = this.historyOrderRepository.create({
+      orderStatusDate: currentDate,
+      status: previousStatus,
+      order: { id: order.id },
+    });
+
+    await this.historyOrderRepository.save(addHistoryOrder);
+
     return order;
   }
 
-  //--------------------------------------------------------searchOrders-----------------------------------------------------------//
+  //--------------------------------------------------------getHistory------------------------------------------------------------//
 
-  async searchOrders(search: string): Promise<Order[]> {
-    console.log('🚀 ~ OrderService ~ searchOrders ~ Order:', Order);
-    const options: FindManyOptions<Order> = {
-      where: [
-        { customerName: Like(`%${search}%`) },
-        { status: Like(`%${search}%`) },
-        { phoneNumber: Like(`%${search}%`) },
-        { address: Like(`%${search}%`) },
-        { zipCode: Like(`%${search}%`) },
-        { province: Like(`%${search}%`) },
-        { district: Like(`%${search}%`) },
-        { parish: Like(`%${search}%`) },
-        { country: Like(`%${search}%`) },
-      ],
-      order: { id: 'DESC' },
-    };
-
-    return await this.orderRepository.find(options);
+  async getHistoryOrderByOrderId(orderId: number) {
+    const data = await this.historyOrderRepository.findOne({
+      where: { order: { id: orderId } },
+    });
+    return data;
   }
+
+  async queryBilder(body: OrderFilterDTO) {
+    const {
+      customerName,
+      status,
+      uom,
+      cod,
+      phoneNumber,
+      address,
+      alley,
+      road,
+      zipCode,
+      province,
+      parish,
+      district,
+      country,
+      orderDate,
+    } = body;
+    const data = this.orderRepository
+      .createQueryBuilder('order')
+      .leftJoinAndSelect('order.orderno', 'orderno')
+      .leftJoinAndSelect('orderno.item', 'item')
+      .orderBy('order.id', 'DESC');
+
+    if (status) {
+      data.andWhere('order.status = :status', { status });
+    }
+
+    if (customerName) {
+      data.andWhere('order.customerName = :status', { customerName });
+    }
+
+    if (uom) {
+      data.andWhere('order.uom = uom', { uom });
+    }
+
+    if (cod) {
+      data.andWhere('order.cod = cod', { cod });
+    }
+
+    if (phoneNumber) {
+      data.andWhere('order.phoneNumber = phoneNumber', { phoneNumber });
+    }
+
+    if (address) {
+      data.andWhere('order.address = address', { address });
+    }
+
+    if (alley) {
+      data.andWhere('order.alley = alley', { alley });
+    }
+
+    if (road) {
+      data.andWhere('order.road = road', { road });
+    }
+
+    if (zipCode) {
+      data.andWhere('order.zipCode = zipCode', { zipCode });
+    }
+
+    if (province) {
+      data.andWhere('order.province = province', { province });
+    }
+
+    if (parish) {
+      data.andWhere('order.parish = parish', { parish });
+    }
+
+    if (district) {
+      data.andWhere('order.district = district', { district });
+    }
+
+    if (country) {
+      data.andWhere('order.country = country', { country });
+    }
+
+    if (orderDate) {
+      data.andWhere('order.orderDate = orderDate', { orderDate });
+    }
+
+    return await data.getMany();
+  }
+
+  //--------------------------------------------------------searchOrders-----------------------------------------------------------//
 
   //-------------------------------------------------------searchOrderStatus-----------------------------------------------------//
 
@@ -156,9 +282,9 @@ export class OrderService {
     }
 
     if (
-      order.status !== OrderStatus.OutOfStock &&
-      order.status !== OrderStatus.Delivered &&
-      order.status !== OrderStatus.Returned
+      order.status !== OrderStatus.OUTOFSTOCK &&
+      order.status !== OrderStatus.DELIVERED &&
+      order.status !== OrderStatus.RETURNED
     ) {
       const orderNos = await this.orderNoRepository.find({
         where: { order: order },

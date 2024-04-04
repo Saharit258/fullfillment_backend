@@ -7,9 +7,12 @@ import { Order } from '../entities/order.entity';
 import { OrderNo } from '../entities/orderno.entity';
 import { Item } from '../entities/item.entity';
 import { History } from '../entities/history.entity';
+import { HistoryOrder } from 'src/entities/historyorder.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Order, OrderNo, Item, History])],
+  imports: [
+    TypeOrmModule.forFeature([Order, OrderNo, Item, History, HistoryOrder]),
+  ],
   controllers: [OrderController],
   providers: [OrderService, OrdernoService],
 })

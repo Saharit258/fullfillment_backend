@@ -69,4 +69,16 @@ export class UpdateOrderDto {
   @IsString()
   @IsOptional()
   country: string;
+
+  @ApiProperty({
+    example: [
+      { itemId: 11, qty: 200 },
+      { itemId: 14, qty: 200 },
+    ],
+  })
+  @IsOptional()
+  item: {
+    itemId: number;
+    qty: number;
+  }[];
 }

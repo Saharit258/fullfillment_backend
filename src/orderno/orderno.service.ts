@@ -41,8 +41,8 @@ export class OrdernoService {
         parish: collect.parish,
         country: collect.country,
         quantity: 0,
-        status: OrderStatus.NotChecked,
-      } as Partial<Order>);
+        status: OrderStatus.NOTCHECKED,
+      });
 
       const savedOrder = await this.orderRepository.save(newOrder);
 
