@@ -1,18 +1,39 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { UpdateOrderstatusDto } from './dto/update-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, Like, Repository } from 'typeorm';
 import { Order } from '../entities/order.entity';
 import { ApiOperation } from '@nestjs/swagger';
 import { OrderStatusFilterDTO } from './dto/orderstatus-filter.dto';
+import { OrderNo } from '../entities/orderno.entity';
+import { OrderStatus } from '../orderno/dto/order-enum';
 
 @Injectable()
 export class OrderService {
   constructor(
     @InjectRepository(Order)
     private orderRepository: Repository<Order>,
+    @InjectRepository(OrderNo)
+    private orderNoRepository: Repository<OrderNo>,
   ) {}
+
+  async getOrder() {
+    try {
+      const data = await this.orderRepository.find({
+        relations: ['orderno', 'orderno.item'],
+        order: { id: 'DESC' },
+      });
+      return data;
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   //-------------------------------------------------------getOrderById------------------------------------------------------------//
 
@@ -23,9 +44,30 @@ export class OrderService {
     return getOrderById;
   }
 
-  //--------------------------------------------------------Put--------------------------------------------------------------------//
+  //--------------------------------------------------------PutOrder---------------------------------------------------------------//
 
-  async updateOrderStatus(id: number, body: UpdateOrderDto): Promise<Order> {
+  async updateOrder(id: number, body: UpdateOrderDto): Promise<Order> {
+    try {
+      const order = await this.getOrderById(id);
+      if (!order) {
+        throw new NotFoundException(`Order with ID ${id} not found.`);
+      }
+      Object.assign(order, { ...body });
+
+      await this.orderRepository.save(order);
+
+      return order;
+    } catch (error) {
+      throw new BadRequestException(`Failed to update order: ${error.message}`);
+    }
+  }
+
+  //--------------------------------------------------------PutOrderStatus---------------------------------------------------------//
+
+  async updateOrderStatus(
+    id: number,
+    body: UpdateOrderstatusDto,
+  ): Promise<Order> {
     const order = await this.getOrderById(id);
     if (!order) {
       throw new NotFoundException(`Order with ID ${id} not found.`);
@@ -51,6 +93,7 @@ export class OrderService {
         { parish: Like(`%${search}%`) },
         { country: Like(`%${search}%`) },
       ],
+      order: { id: 'DESC' },
     };
 
     return await this.orderRepository.find(options);
@@ -61,8 +104,48 @@ export class OrderService {
   async searchOrderStatus(searchs: OrderStatusFilterDTO): Promise<Order[]> {
     const options: FindManyOptions<Order> = {
       where: { status: Like(`%${searchs.status}%`) },
+      order: { id: 'DESC' },
     };
-
     return await this.orderRepository.find(options);
+  }
+
+  //-----------------------------------------------------Delete-----------------------------------------------------------------//
+
+  async removeOrder(id: number) {
+    const order = await this.getOrderById(id);
+    if (!order) {
+      throw new NotFoundException(`Order with ID ${id} not found.`);
+    }
+
+    if (
+      order.status !== OrderStatus.OutOfStock &&
+      order.status !== OrderStatus.Delivered &&
+      order.status !== OrderStatus.Returned
+    ) {
+      const orderNos = await this.orderNoRepository.find({
+        where: { order: order },
+      });
+
+      if (orderNos.length > 0) {
+        try {
+          await this.orderNoRepository.remove(orderNos);
+        } catch (error) {
+          throw new Error(
+            `Failed to delete OrderNo associated with Order ID ${id}: ${error.message}`,
+          );
+        }
+      }
+
+      try {
+        await this.orderRepository.remove(order);
+        return true;
+      } catch (error) {
+        throw new Error(
+          `Failed to delete order with ID ${id}: ${error.message}`,
+        );
+      }
+    } else {
+      throw new BadRequestException('อยู่ในสถานะไม่สามารถลบได้');
+    }
   }
 }

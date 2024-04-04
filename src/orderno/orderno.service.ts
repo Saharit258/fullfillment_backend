@@ -40,7 +40,6 @@ export class OrdernoService {
         district: collect.district,
         parish: collect.parish,
         country: collect.country,
-        quantity: 0,
         status: OrderStatus.NotChecked,
       } as Partial<Order>);
 
@@ -71,21 +70,11 @@ export class OrdernoService {
 
   //----------------------------------------------------แสดงข้อมูล----------------------------------------------------------------//
 
-  async getOrders() {
+  async getOrderItem() {
     const data = await this.ordernoRepository.find({
       relations: { item: true },
+      order: { id: 'DESC' },
     });
     return data;
-  }
-
-  async getOrderItem() {
-    try {
-      const data = await this.orderRepository.find({
-        relations: ['orderno', 'orderno.item'],
-      });
-      return data;
-    } catch (error) {
-      console.log(error);
-    }
   }
 }

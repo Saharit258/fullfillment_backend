@@ -15,7 +15,7 @@ import { CreateStoreDto } from './dto/create-store.dto';
 import { ApiTags } from '@nestjs/swagger';
 
 @Controller('stores')
-@ApiTags('/stores')
+@ApiTags('stores')
 export class StoresController {
   constructor(private readonly storesService: StoresService) {}
 

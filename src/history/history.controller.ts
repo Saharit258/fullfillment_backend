@@ -13,7 +13,7 @@ import { CreateHistoryDto } from '../history/dto/create-history.dio';
 import { ApiTags } from '@nestjs/swagger';
 
 @Controller('/history')
-@ApiTags('/history')
+@ApiTags('history')
 export class HistoryController {
   constructor(private readonly historyService: HistoryService) {}
 

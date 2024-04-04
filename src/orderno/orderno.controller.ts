@@ -17,24 +17,13 @@ import { UpdateOrdernoDto } from './dto/update-orderno.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { OrderFilterDTO } from './dto/order-filter.dto';
 
-@Controller('order')
-@ApiTags('order')
+@Controller('record')
+@ApiTags('Record')
 export class OrdernoController {
   constructor(private readonly ordernoService: OrdernoService) {}
 
-  @Post()
-  async addOrder(@Body() collect: CreateOrdernoDto) {
-    return await this.ordernoService.addOrder(collect);
-  }
-
   @Get('item')
   async getOrderItem() {
-    const data = await this.ordernoService.getOrders();
-    return { data };
-  }
-
-  @Get()
-  async getOrders() {
     const data = await this.ordernoService.getOrderItem();
     return { data };
   }

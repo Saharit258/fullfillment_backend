@@ -9,7 +9,9 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Fullfillmant')
-    .setDescription('API description')
+    .setDescription(
+      'คลังสินค้าทั่วไปมักใช้สำหรับจัดเก็บสินค้าหลากหลายชนิดที่ไม่ต้องการการดูแลรักษาเป็นพิเศษ เหมาะสำหรับผู้ผลิตหรือผู้ประกอบในอุตสาหกรรมสินค้าเพื่อการอุปโภค สินค้าสำเร็จรูป ข้าวของเครื่องใช้ทั่วไป ชิ้นส่วนต่าง ๆ',
+    )
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);

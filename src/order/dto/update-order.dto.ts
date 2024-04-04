@@ -1,11 +1,72 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { CreateOrderDto } from './create-order.dto';
-import { IsString, IsOptional } from 'class-validator';
+import { IsString, IsOptional, IsNumber } from 'class-validator';
 import { OrderStatus } from 'src/orderno/dto/order-enum';
 
-export class UpdateOrderDto {
+export class UpdateOrderstatusDto {
   @ApiProperty({ enum: OrderStatus })
   @IsString()
-  @IsOptional()
   status: string;
+}
+
+export class UpdateOrderDto {
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  customerName: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  uom: string;
+
+  @ApiProperty()
+  @IsNumber()
+  @IsOptional()
+  cod: number;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  phoneNumber: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  address: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  alley: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  road: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  zipCode: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  province: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  district: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  parish: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  country: string;
 }
