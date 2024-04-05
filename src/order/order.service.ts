@@ -121,6 +121,9 @@ export class OrderService {
       for (const orderNo of orderNos) {
         const item = orderNo.item;
         item.quantity -= orderNo.quantity;
+        if (item.quantity < 0) {
+          throw new BadRequestException('จำนวนของไม่พอ');
+        }
         await this.itemRepository.save(item);
       }
 
@@ -178,14 +181,10 @@ export class OrderService {
 
   async updateOrderStatusMultiple(data: {
     orderId: number[];
-    status: UpdateStatusMultipleDto;
+    status: UpdateOrderstatusDto;
   }): Promise<Order[]> {
     const { orderId, status } = data;
     const { status: newStatus } = status;
-
-    if (!(newStatus in OrderStatus)) {
-      throw new BadRequestException(`Invalid status: ${newStatus}`);
-    }
 
     const orders = await this.orderRepository.findByIds(orderId);
 
@@ -211,6 +210,9 @@ export class OrderService {
         for (const orderNo of orderNos) {
           const item = orderNo.item;
           item.quantity -= orderNo.quantity;
+          if (item.quantity < 0) {
+            throw new BadRequestException('จำนวนของไม่พอ');
+          }
           await this.itemRepository.save(item);
         }
 
@@ -253,9 +255,11 @@ export class OrderService {
 
       const currentDate = new Date();
 
+      const status = order.status;
+
       const addHistoryOrder = this.historyOrderRepository.create({
         orderStatusDate: currentDate,
-        status: previousStatus,
+        status: status,
         order: { id: order.id },
       });
 

@@ -94,14 +94,18 @@ export class OrderController {
 
   @Put('/update-status-multiple')
   @ApiBody({
-    type: [Number],
-    isArray: false,
     schema: {
       properties: {
-        orderId: { type: 'array', items: { type: 'number' } },
+        orderId: {
+          example: [71, 72],
+        },
         status: {
-          type: 'object',
-          properties: {},
+          properties: {
+            status: {
+              example: 'RETURNED',
+            },
+          },
+          required: ['status'],
         },
       },
     },
@@ -110,8 +114,8 @@ export class OrderController {
     @Body() body: { orderId: number[]; status: UpdateStatusMultipleDto },
   ) {
     try {
-      await this.orderService.updateOrderStatusMultiple(body);
-      return { message: 'Order statuses updated successfully' };
+      const data = await this.orderService.updateOrderStatusMultiple(body);
+      return { data };
     } catch (error) {
       throw new HttpException(
         `${error.message}`,

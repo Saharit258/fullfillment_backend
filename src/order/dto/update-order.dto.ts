@@ -4,7 +4,7 @@ import { IsString, IsOptional, IsNumber } from 'class-validator';
 import { OrderStatus } from 'src/orderno/dto/order-enum';
 
 export class UpdateOrderstatusDto {
-  @ApiProperty({ enum: OrderStatus })
+  @ApiProperty({ enum: OrderStatus, example: [{ status: 'RETURNED' }] })
   @IsString()
   status: string;
 }
@@ -84,6 +84,11 @@ export class UpdateOrderDto {
 }
 
 export class UpdateStatusMultipleDto {
+  @ApiProperty({ example: [1, 2, 3] })
+  @IsNumber()
+  orderId: number[];
+
+  @ApiProperty({ example: { status: 'RETURNED' } })
   @IsString()
   status: string;
 }
