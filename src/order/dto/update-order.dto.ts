@@ -82,3 +82,8 @@ export class UpdateOrderDto {
     qty: number;
   }[];
 }
+
+export class UpdateStatusMultipleDto {
+  @IsString()
+  status: string;
+}

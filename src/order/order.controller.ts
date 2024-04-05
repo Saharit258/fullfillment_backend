@@ -16,13 +16,18 @@ import {
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto, UpdateOrderstatusDto } from './dto/update-order.dto';
+import {
+  UpdateOrderDto,
+  UpdateOrderstatusDto,
+  UpdateStatusMultipleDto,
+} from './dto/update-order.dto';
 import { OrderFilterDTO } from 'src/orderno/dto/order-filter.dto';
 import { ApiBody, ApiOperation, ApiProperty, ApiTags } from '@nestjs/swagger';
 import { OrderStatusFilterDTO } from './dto/orderstatus-filter.dto';
 import { OrderStatus } from 'src/orderno/dto/order-enum';
 import { CreateOrdernoDto } from '../orderno/dto/create-orderno.dto';
 import { OrdernoService } from '../orderno/orderno.service';
+import { MultiIds } from 'src/item/dto/create-item.dto';
 
 @Controller('order')
 @ApiTags('order')
@@ -87,6 +92,34 @@ export class OrderController {
 
   //----------------------------------------------------Put-----------------------------------------------------------------------//
 
+  @Put('/update-status-multiple')
+  @ApiBody({
+    type: [Number],
+    isArray: false,
+    schema: {
+      properties: {
+        orderId: { type: 'array', items: { type: 'number' } },
+        status: {
+          type: 'object',
+          properties: {},
+        },
+      },
+    },
+  })
+  async updateOrderStatusMultiple(
+    @Body() body: { orderId: number[]; status: UpdateStatusMultipleDto },
+  ) {
+    try {
+      await this.orderService.updateOrderStatusMultiple(body);
+      return { message: 'Order statuses updated successfully' };
+    } catch (error) {
+      throw new HttpException(
+        `${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   @Put('/:id')
   async updateOrder(
     @Param('id', ParseIntPipe) id: number,
@@ -124,10 +157,10 @@ export class OrderController {
 
   //---------------------------------------------------Delete--------------------------------------------------------------------//
 
-  @Delete('/:id')
-  async removeOrder(@Param('id', ParseIntPipe) id: number) {
+  @Delete('/remove-multiple')
+  async removeOrder(@Body() body: MultiIds) {
     try {
-      await this.orderService.removeOrder(id);
+      await this.orderService.removeOrder(body);
       return { data: {} };
     } catch (error) {
       throw new HttpException(
@@ -137,21 +170,5 @@ export class OrderController {
     }
   }
 
-  //-------------------------------------------------------sum--------------------------------------------------------------------//
-
-  // @Get(':id/summary-quantity')
-  // async getSummaryQuantity(
-  //   @Param('orderId', ParseIntPipe) orderId: number,
-  //   @Param('itemId', ParseIntPipe) itemId: number,
-  // ) {
-  //   try {
-  //     const sum = await this.orderService.summaryQuantity(orderId, itemId);
-  //     return { sum };
-  //   } catch (error) {
-  //     throw new HttpException(
-  //       `${error.message}`,
-  //       HttpStatus.INTERNAL_SERVER_ERROR,
-  //     );
-  //   }
-  // }
+  //-------------------------------------------------------แก้ไขสถานะหลายๆอัน------------------------------------------------------//
 }

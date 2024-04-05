@@ -17,6 +17,8 @@ import { Item } from '../entities/item.entity';
 import { History } from '../entities/history.entity';
 import { HistoryOrder } from '../entities/historyorder.entity';
 import { OrderFilterDTO } from 'src/orderno/dto/order-filter.dto';
+import { UpdateStatusMultipleDto } from '../order/dto/update-order.dto';
+import { MultiIds } from 'src/item/dto/create-item.dto';
 
 @Injectable()
 export class OrderService {
@@ -73,15 +75,17 @@ export class OrderService {
       let total = 0;
 
       const addorderno = body.item.map((item) => {
-        total + item.qty;
+        total += item.qty;
         return this.orderNoRepository.create({
           quantity: item.qty,
-          order: order,
+          order: { id: order.id },
           item: { id: item.itemId },
         });
       });
 
       await this.orderNoRepository.save(addorderno);
+
+      await this.orderRepository.update(order.id, { quantity: total });
 
       return order;
     } catch (error) {
@@ -170,6 +174,97 @@ export class OrderService {
     return order;
   }
 
+  //--------------------------------------------------------แก้ไขสถานะหลายๆอัน-----------------------------------------------------//
+
+  async updateOrderStatusMultiple(data: {
+    orderId: number[];
+    status: UpdateStatusMultipleDto;
+  }): Promise<Order[]> {
+    const { orderId, status } = data;
+    const { status: newStatus } = status;
+
+    if (!(newStatus in OrderStatus)) {
+      throw new BadRequestException(`Invalid status: ${newStatus}`);
+    }
+
+    const orders = await this.orderRepository.findByIds(orderId);
+
+    for (const order of orders) {
+      if (!order) {
+        throw new NotFoundException(`Order not found with ID ${order.id}`);
+      }
+
+      const previousStatus = order.status;
+
+      order.status = OrderStatus[newStatus as keyof typeof OrderStatus];
+      await this.orderRepository.save(order);
+
+      if (
+        order.status === OrderStatus.OUTOFSTOCK &&
+        previousStatus !== OrderStatus.OUTOFSTOCK
+      ) {
+        const orderNos = await this.orderNoRepository.find({
+          where: { order: order },
+          relations: ['item'],
+        });
+
+        for (const orderNo of orderNos) {
+          const item = orderNo.item;
+          item.quantity -= orderNo.quantity;
+          await this.itemRepository.save(item);
+        }
+
+        const currentDate = new Date();
+
+        for (const orderNo of orderNos) {
+          const historyEntry = new History();
+          historyEntry.outDate = currentDate;
+          historyEntry.quantity = orderNo.quantity;
+          historyEntry.item = orderNo.item;
+          await this.historyRepository.save(historyEntry);
+        }
+      }
+
+      if (
+        order.status === OrderStatus.RETURNED &&
+        previousStatus !== OrderStatus.RETURNED
+      ) {
+        const orderNos = await this.orderNoRepository.find({
+          where: { order: order },
+          relations: ['item'],
+        });
+
+        for (const orderNo of orderNos) {
+          const item = orderNo.item;
+          item.quantity += orderNo.quantity;
+          await this.itemRepository.save(item);
+        }
+
+        const currentDate = new Date();
+
+        for (const orderNo of orderNos) {
+          const historyEntry = new History();
+          historyEntry.outDate = currentDate;
+          historyEntry.quantity = orderNo.quantity;
+          historyEntry.item = orderNo.item;
+          await this.historyRepository.save(historyEntry);
+        }
+      }
+
+      const currentDate = new Date();
+
+      const addHistoryOrder = this.historyOrderRepository.create({
+        orderStatusDate: currentDate,
+        status: previousStatus,
+        order: { id: order.id },
+      });
+
+      await this.historyOrderRepository.save(addHistoryOrder);
+    }
+
+    return orders;
+  }
+
   //--------------------------------------------------------getHistory------------------------------------------------------------//
 
   async getHistoryOrderByOrderId(orderId: number) {
@@ -181,6 +276,7 @@ export class OrderService {
 
   async queryBilder(body: OrderFilterDTO) {
     const {
+      id,
       customerName,
       status,
       uom,
@@ -201,6 +297,10 @@ export class OrderService {
       .leftJoinAndSelect('order.orderno', 'orderno')
       .leftJoinAndSelect('orderno.item', 'item')
       .orderBy('order.id', 'DESC');
+
+    if (id) {
+      data.andWhere('order.id = :id', { id });
+    }
 
     if (status) {
       data.andWhere('order.status = :status', { status });
@@ -261,8 +361,6 @@ export class OrderService {
     return await data.getMany();
   }
 
-  //--------------------------------------------------------searchOrders-----------------------------------------------------------//
-
   //-------------------------------------------------------searchOrderStatus-----------------------------------------------------//
 
   async searchOrderStatus(searchs: OrderStatusFilterDTO): Promise<Order[]> {
@@ -275,41 +373,45 @@ export class OrderService {
 
   //-----------------------------------------------------Delete-----------------------------------------------------------------//
 
-  async removeOrder(id: number): Promise<boolean> {
-    const order = await this.getOrderById(id);
-    if (!order) {
-      throw new NotFoundException(`Order with ID ${id} not found.`);
-    }
-
-    if (
-      order.status !== OrderStatus.OUTOFSTOCK &&
-      order.status !== OrderStatus.DELIVERED &&
-      order.status !== OrderStatus.RETURNED
-    ) {
-      const orderNos = await this.orderNoRepository.find({
-        where: { order: order },
-      });
-
-      if (orderNos.length > 0) {
-        try {
-          await this.orderNoRepository.remove(orderNos);
-        } catch (error) {
-          throw new Error(
-            `Failed to delete OrderNo associated with Order ID ${id}: ${error.message}`,
-          );
+  async removeOrder(body: MultiIds) {
+    const deletedItems = await Promise.all(
+      body.ids.map(async (id) => {
+        const order = await this.getOrderById(id);
+        if (!order) {
+          throw new NotFoundException(`Order with ID ${id} not found.`);
         }
-      }
 
-      try {
-        await this.orderRepository.remove(order);
-        return true;
-      } catch (error) {
-        throw new Error(
-          `Failed to delete order with ID ${id}: ${error.message}`,
-        );
-      }
-    } else {
-      throw new BadRequestException('อยู่ในสถานะไม่สามารถลบได้');
-    }
+        if (
+          order.status !== OrderStatus.OUTOFSTOCK &&
+          order.status !== OrderStatus.DELIVERED &&
+          order.status !== OrderStatus.RETURNED
+        ) {
+          const orderNos = await this.orderNoRepository.find({
+            where: { order: order },
+          });
+
+          if (orderNos.length > 0) {
+            try {
+              await this.orderNoRepository.remove(orderNos);
+            } catch (error) {
+              throw new Error(
+                `Failed to delete OrderNo associated with Order ID ${id}: ${error.message}`,
+              );
+            }
+          }
+
+          try {
+            await this.orderRepository.remove(order);
+            return true;
+          } catch (error) {
+            throw new Error(
+              `Failed to delete order with ID ${id}: ${error.message}`,
+            );
+          }
+        } else {
+          throw new BadRequestException('อยู่ในสถานะไม่สามารถลบได้');
+        }
+      }),
+    );
   }
 }
