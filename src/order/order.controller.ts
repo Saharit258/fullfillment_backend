@@ -41,7 +41,8 @@ export class OrderController {
 
   @Post()
   async addOrder(@Body() collect: CreateOrdernoDto) {
-    return await this.ordernoService.addOrder(collect);
+    const data = await this.ordernoService.addOrder(collect);
+    return { data };
   }
 
   //-------------------------------------------------------------get-------------------------------------------------------------//

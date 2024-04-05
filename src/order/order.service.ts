@@ -7,7 +7,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderstatusDto } from './dto/update-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindManyOptions, Like, Repository } from 'typeorm';
+import { FindManyOptions, IsNull, Like, Not, Repository } from 'typeorm';
 import { Order } from '../entities/order.entity';
 import { ApiOperation } from '@nestjs/swagger';
 import { OrderStatusFilterDTO } from './dto/orderstatus-filter.dto';
@@ -110,8 +110,8 @@ export class OrderService {
     await this.orderRepository.save(order);
 
     if (
-      body.status === OrderStatus.OUTOFSTOCK &&
-      previousStatus !== OrderStatus.OUTOFSTOCK
+      body.status === OrderStatus.INPROGRESS &&
+      previousStatus !== OrderStatus.INPROGRESS
     ) {
       const orderNos = await this.orderNoRepository.find({
         where: { order: order },
@@ -121,7 +121,7 @@ export class OrderService {
       for (const orderNo of orderNos) {
         const item = orderNo.item;
         item.quantity -= orderNo.quantity;
-        if (item.quantity < 0) {
+        if (item.quantity - orderNo.quantity < 0) {
           throw new BadRequestException('จำนวนของไม่พอ');
         }
         await this.itemRepository.save(item);
@@ -139,8 +139,8 @@ export class OrderService {
     }
 
     if (
-      body.status === OrderStatus.RETURNED &&
-      previousStatus !== OrderStatus.RETURNED
+      body.status === OrderStatus.RETURNEDITEM &&
+      previousStatus !== OrderStatus.RETURNEDITEM
     ) {
       const orderNos = await this.orderNoRepository.find({
         where: { order: order },
@@ -199,8 +199,8 @@ export class OrderService {
       await this.orderRepository.save(order);
 
       if (
-        order.status === OrderStatus.OUTOFSTOCK &&
-        previousStatus !== OrderStatus.OUTOFSTOCK
+        order.status === OrderStatus.INPROGRESS &&
+        previousStatus !== OrderStatus.INPROGRESS
       ) {
         const orderNos = await this.orderNoRepository.find({
           where: { order: order },
@@ -210,7 +210,7 @@ export class OrderService {
         for (const orderNo of orderNos) {
           const item = orderNo.item;
           item.quantity -= orderNo.quantity;
-          if (item.quantity < 0) {
+          if (item.quantity - orderNo.quantity < 0) {
             throw new BadRequestException('จำนวนของไม่พอ');
           }
           await this.itemRepository.save(item);
@@ -228,8 +228,8 @@ export class OrderService {
       }
 
       if (
-        order.status === OrderStatus.RETURNED &&
-        previousStatus !== OrderStatus.RETURNED
+        order.status === OrderStatus.RETURNEDITEM &&
+        previousStatus !== OrderStatus.RETURNEDITEM
       ) {
         const orderNos = await this.orderNoRepository.find({
           where: { order: order },
@@ -272,11 +272,19 @@ export class OrderService {
   //--------------------------------------------------------getHistory------------------------------------------------------------//
 
   async getHistoryOrderByOrderId(orderId: number) {
-    const data = await this.historyOrderRepository.findOne({
-      where: { order: { id: orderId } },
+    const data = await this.historyOrderRepository.find({
+      where: {
+        order: { id: orderId },
+        status: Not(IsNull()),
+      },
     });
     return data;
   }
+
+  //----------------------------------------------------Right join--------------------------------------------------------------//
+  async getOrderItem(orderId: number) {}
+
+  //---------------------------------------------------queryBilder-------------------------------------------------------------//
 
   async queryBilder(body: OrderFilterDTO) {
     const {
@@ -300,6 +308,9 @@ export class OrderService {
       .createQueryBuilder('order')
       .leftJoinAndSelect('order.orderno', 'orderno')
       .leftJoinAndSelect('orderno.item', 'item')
+      .where('order.status != :excludedStatus', {
+        excludedStatus: 'RETURNEDITEM',
+      })
       .orderBy('order.id', 'DESC');
 
     if (id) {
@@ -386,7 +397,7 @@ export class OrderService {
         }
 
         if (
-          order.status !== OrderStatus.OUTOFSTOCK &&
+          order.status !== OrderStatus.INPROGRESS &&
           order.status !== OrderStatus.DELIVERED &&
           order.status !== OrderStatus.RETURNED
         ) {
