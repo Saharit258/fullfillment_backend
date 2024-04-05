@@ -54,7 +54,7 @@ export class OrderService {
   async getOrderById(id: number): Promise<Order> {
     const getOrderById = await this.orderRepository.findOne({
       where: { id },
-      relations: { orderno: true },
+      relations: { orderno: { item: true } },
     });
     return getOrderById;
   }
@@ -288,7 +288,6 @@ export class OrderService {
 
   async queryBilder(body: OrderFilterDTO) {
     const {
-      id,
       customerName,
       status,
       uom,
@@ -313,64 +312,70 @@ export class OrderService {
       })
       .orderBy('order.id', 'DESC');
 
-    if (id) {
-      data.andWhere('order.id = :id', { id });
-    }
-
     if (status) {
       data.andWhere('order.status = :status', { status });
     }
 
     if (customerName) {
-      data.andWhere('order.customerName = :status', { customerName });
+      data.andWhere('order.customerName like :customerName', {
+        customerName: `%${customerName}%`,
+      });
     }
 
     if (uom) {
-      data.andWhere('order.uom = uom', { uom });
+      data.andWhere('order.uom like :uom', { uom: `%${uom}%` });
     }
 
     if (cod) {
-      data.andWhere('order.cod = cod', { cod });
+      data.andWhere('order.cod like :cod', { cod: `%${cod}%` });
     }
 
     if (phoneNumber) {
-      data.andWhere('order.phoneNumber = phoneNumber', { phoneNumber });
+      data.andWhere('order.phoneNumber like :phoneNumber', {
+        phoneNumber: `%${phoneNumber}%`,
+      });
     }
 
     if (address) {
-      data.andWhere('order.address = address', { address });
+      data.andWhere('order.address like :address', { address: `%${address}%` });
     }
 
     if (alley) {
-      data.andWhere('order.alley = alley', { alley });
+      data.andWhere('order.alley like :alley', { alley: `%${alley}%` });
     }
 
     if (road) {
-      data.andWhere('order.road = road', { road });
+      data.andWhere('order.road like :road', { road: `%${road}%` });
     }
 
     if (zipCode) {
-      data.andWhere('order.zipCode = zipCode', { zipCode });
+      data.andWhere('order.zipCode like :zipCode', { zipCode: `%${zipCode}%` });
     }
 
     if (province) {
-      data.andWhere('order.province = province', { province });
+      data.andWhere('order.province like :province', {
+        province: `%${province}%`,
+      });
     }
 
     if (parish) {
-      data.andWhere('order.parish = parish', { parish });
+      data.andWhere('order.parish like :parish', { parish: `%${parish}%` });
     }
 
     if (district) {
-      data.andWhere('order.district = district', { district });
+      data.andWhere('order.district like :district', {
+        district: `%${district}%`,
+      });
     }
 
     if (country) {
-      data.andWhere('order.country = country', { country });
+      data.andWhere('order.country like :country', {
+        country: `%${country}%`,
+      });
     }
 
     if (orderDate) {
-      data.andWhere('order.orderDate = orderDate', { orderDate });
+      data.andWhere('order.orderDate like :orderDate', { orderDate });
     }
 
     return await data.getMany();
@@ -405,9 +410,23 @@ export class OrderService {
             where: { order: order },
           });
 
+          const orderNoss = await this.historyOrderRepository.find({
+            where: { order: order },
+          });
+
           if (orderNos.length > 0) {
             try {
-              await this.orderNoRepository.remove(orderNos);
+              this.orderNoRepository.remove(orderNos);
+            } catch (error) {
+              throw new Error(
+                `Failed to delete OrderNo associated with Order ID ${id}: ${error.message}`,
+              );
+            }
+          }
+
+          if (orderNos.length > 0) {
+            try {
+              this.historyOrderRepository.remove(orderNoss);
             } catch (error) {
               throw new Error(
                 `Failed to delete OrderNo associated with Order ID ${id}: ${error.message}`,

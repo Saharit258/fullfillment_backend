@@ -4,11 +4,6 @@ import { OrderStatus } from './order-enum';
 
 export class OrderFilterDTO {
   @ApiProperty({ required: false })
-  @IsNumber()
-  @IsOptional()
-  id: number;
-
-  @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
   customerName: string;
