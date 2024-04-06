@@ -78,10 +78,6 @@ export class ItemController {
 
   @Put('/update-quantity-multiple')
   async addHistoryBatch(@Body() histories: CreateHistoryDto[]) {
-    console.log(
-      '🚀 ~ ItemController ~ addHistoryBatch ~ histories:',
-      histories,
-    );
     const result = await this.historyService.addHistoryss(histories);
     return { result };
   }

@@ -121,9 +121,9 @@ export class OrderService {
       for (const orderNo of orderNos) {
         const item = orderNo.item;
         item.quantity -= orderNo.quantity;
-        if (item.quantity - orderNo.quantity < 0) {
-          throw new BadRequestException('จำนวนของไม่พอ');
-        }
+        // if (item.quantity -= orderNo.quantity < 0) {
+        //   throw new BadRequestException('จำนวนของไม่พอ');
+        // }
         await this.itemRepository.save(item);
       }
 
@@ -210,9 +210,9 @@ export class OrderService {
         for (const orderNo of orderNos) {
           const item = orderNo.item;
           item.quantity -= orderNo.quantity;
-          if (item.quantity - orderNo.quantity < 0) {
-            throw new BadRequestException('จำนวนของไม่พอ');
-          }
+          // if (item.quantity -= orderNo.quantity < 0) {
+          //   throw new BadRequestException('จำนวนของไม่พอ');
+          // }
           await this.itemRepository.save(item);
         }
 
@@ -375,7 +375,9 @@ export class OrderService {
     }
 
     if (orderDate) {
-      data.andWhere('order.orderDate like :orderDate', { orderDate });
+      data.andWhere('order.orderDate like :orderDate', {
+        orderDate: `%${orderDate}%`,
+      });
     }
 
     return await data.getMany();
@@ -424,7 +426,7 @@ export class OrderService {
             }
           }
 
-          if (orderNos.length > 0) {
+          if (orderNoss.length > 0) {
             try {
               this.historyOrderRepository.remove(orderNoss);
             } catch (error) {

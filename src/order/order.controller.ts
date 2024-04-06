@@ -29,7 +29,7 @@ import { CreateOrdernoDto } from '../orderno/dto/create-orderno.dto';
 import { OrdernoService } from '../orderno/orderno.service';
 import { MultiIds } from 'src/item/dto/create-item.dto';
 
-@Controller('order')
+@Controller('orders')
 @ApiTags('order')
 export class OrderController {
   constructor(

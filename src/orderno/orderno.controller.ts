@@ -18,7 +18,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { OrderFilterDTO } from './dto/order-filter.dto';
 import { OrderNo } from 'src/entities/orderno.entity';
 
-@Controller('record')
+@Controller('records')
 @ApiTags('Record')
 export class OrdernoController {
   constructor(private readonly ordernoService: OrdernoService) {}
