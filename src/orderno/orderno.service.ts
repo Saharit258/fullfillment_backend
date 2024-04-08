@@ -8,6 +8,7 @@ import { OrderNo } from '../entities/orderno.entity';
 import { Order } from '../entities/order.entity';
 // import { item } from '../entities/item.entity'; // Corrected import
 import { OrderStatus } from './dto/order-enum';
+import { OrderItemFilterDTO } from './dto/order-filter.dto';
 
 @Injectable()
 export class OrdernoService {
@@ -111,5 +112,36 @@ export class OrdernoService {
       order: { id: 'DESC' },
     });
     return data;
+  }
+
+  async queryBilderOrderItem(body: OrderItemFilterDTO) {
+    const { sku, startDate, endDate, storesName } = body;
+    const data = this.ordernoRepository
+      .createQueryBuilder('orderno')
+      .leftJoinAndSelect('orderno.item', 'item')
+      .leftJoinAndSelect('orderno.order', 'order')
+      .leftJoinAndSelect('item.stores', 'stores')
+      .orderBy('orderno.id', 'DESC');
+
+    if (sku) {
+      data.andWhere('item.sku like :sku', {
+        sku: `%${sku}%`,
+      });
+    }
+
+    if (startDate && endDate) {
+      data.andWhere('order.orderDate BETWEEN :startDate AND :endDate', {
+        startDate,
+        endDate,
+      });
+    }
+
+    if (storesName) {
+      data.andWhere('stores.name like :storesName', {
+        storesName: `%${storesName}%`,
+      });
+    }
+
+    return await data.getMany();
   }
 }

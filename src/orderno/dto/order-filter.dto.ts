@@ -81,3 +81,23 @@ export class OrderFilterDTO {
   @IsOptional()
   storesName: string;
 }
+
+export class OrderItemFilterDTO {
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  sku: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  startDate: Date;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  endDate: Date;
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  storesName: string;
+}
