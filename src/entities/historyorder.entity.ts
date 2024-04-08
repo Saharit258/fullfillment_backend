@@ -17,6 +17,9 @@ export class HistoryOrder {
   @Column({ name: 'out_date', nullable: true, type: 'timestamptz' })
   orderStatusDate: Date;
 
+  @Column({ name: 'note', nullable: true, type: 'varchar' })
+  note: string;
+
   @Column({ name: 'status', nullable: true, type: 'varchar' })
   status: string;
 

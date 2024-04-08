@@ -17,6 +17,7 @@ import { error } from 'console';
 import { UpdateItemDto } from './dto/update-item.dto';
 import { Stores } from '../entities/stores.entity';
 import { CreateHistoryDto } from '../history/dto/create-history.dio';
+import { itemFilterDto } from './dto/item-filter.dto';
 
 @Injectable()
 export class ItemService {
@@ -172,5 +173,42 @@ export class ItemService {
     } catch (error) {
       throw new Error(`เกิดข้อผิดพลาดในการลบไอเท็ม: ${error.message}`);
     }
+  }
+
+  //---------------------------------------------------ค้นหา---------------------------------------------------------------------//
+
+  async queryBilderItem(body: itemFilterDto) {
+    const { sku, name, details, stores, everything } = body;
+    const data = this.itemRepository
+      .createQueryBuilder('item')
+      .leftJoinAndSelect('item.stores', 'stores')
+      .orderBy('item.id', 'DESC');
+
+    if (sku) {
+      data.andWhere('item.sku like :sku', { sku: `%${sku}%` });
+    }
+
+    if (name) {
+      data.andWhere('item.name like :name', { name: `%${name}%` });
+    }
+
+    if (details) {
+      data.andWhere('item.details like :details', { details: `%${details}%` });
+    }
+
+    if (stores) {
+      data.andWhere('stores.name like :stores', { stores: `%${stores}%` });
+    }
+
+    if (everything) {
+      data.andWhere(
+        'item.sku like :everything or item.name like :everything or item.details like :everything or stores.name like :everything or (item.quantity)::text like :everything',
+        {
+          everything: `%${everything}%`,
+        },
+      );
+    }
+
+    return await data.getMany();
   }
 }

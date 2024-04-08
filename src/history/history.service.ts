@@ -105,54 +105,37 @@ export class HistoryService {
   }
 
   //--------------------------------------------------------addHistory หลายตัว---------------------------------------------------//
-  async addHistoryss(bodies: CreateHistoryDto[]): Promise<{
-    savedHistories: History[];
-  }> {
+
+  async addHistoryss(history: CreateHistoryDto[]) {
     const currentDate = new Date();
 
-    const promises = bodies.map(async (body) => {
-      const itemToUpdate = await this.getItems(body.item);
-      if (!itemToUpdate) {
-        throw new NotFoundException(`Item with ID ${body.item} not found`);
-      }
-
-      const newHistory = this.historyRepository.create({
-        outDate: currentDate,
-        quantity: body.quantity,
-        remark: body.remark,
-        item: { id: body.item },
-      });
-
-      const sumQuantity = await this.summaryQuantity(itemToUpdate.id);
-      if (sumQuantity.sum + body.quantity < 0) {
-        throw new BadRequestException('จำนวนของไม่พอ');
-      }
-
-      const savedHistory = await this.historyRepository.save(newHistory);
-      itemToUpdate.quantity = sumQuantity.sum + body.quantity;
-      await this.itemRepository.save(itemToUpdate);
-
-      return savedHistory;
-    });
-
-    try {
-      const savedHistories = await Promise.all(promises);
-      return { savedHistories };
-    } catch (error) {
-      promises.forEach(async (promise) => {
-        try {
-          const savedHistory = await promise;
-          const itemToUpdate = await this.getItems(savedHistory.item.id);
-          if (itemToUpdate) {
-            const sumQuantity = await this.summaryQuantity(itemToUpdate.id);
-            itemToUpdate.quantity = sumQuantity.sum - savedHistory.quantity;
-            await this.itemRepository.save(itemToUpdate);
-          }
-        } catch (error) {
-          console.error('Error reverting history update:', error);
+    const promises = await Promise.all(
+      history.map(async (body) => {
+        const itemToUpdate = await this.getItems(body.item);
+        if (!itemToUpdate) {
+          throw new NotFoundException(`Item with ID ${body.item} not found`);
         }
-      });
-      throw error;
-    }
+
+        const newHistory = this.historyRepository.create({
+          outDate: currentDate,
+          quantity: body.quantity,
+          remark: body.remark,
+          item: { id: body.item },
+        });
+
+        const sumQuantity = await this.summaryQuantity(itemToUpdate.id);
+        if (sumQuantity.sum + body.quantity < 0) {
+          throw new BadRequestException('จำนวนของไม่พอ');
+        }
+
+        const savedHistory = await this.historyRepository.save(newHistory);
+
+        itemToUpdate.quantity = sumQuantity.sum + body.quantity;
+        await this.itemRepository.save(itemToUpdate);
+
+        return savedHistory;
+      }),
+    );
+    return promises;
   }
 }

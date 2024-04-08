@@ -48,9 +48,43 @@ export class OrdernoService {
 
       let totalAmount = 0;
 
+      const random = () => {
+        let code = '';
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+        for (let i = 0; i < 10; i++) {
+          code += characters.charAt(
+            Math.floor(Math.random() * characters.length),
+          );
+        }
+
+        let numCount = 0;
+        for (let i = 0; i < code.length; i++) {
+          if (!isNaN(parseInt(code[i]))) {
+            numCount++;
+          }
+        }
+
+        while (numCount < 3) {
+          const index = Math.floor(Math.random() * code.length);
+          if (isNaN(parseInt(code[index]))) {
+            code =
+              code.substring(0, index) +
+              Math.floor(Math.random() * 10).toString() +
+              code.substring(index + 1);
+            numCount++;
+          }
+        }
+
+        return code;
+      };
+
+      const randomCodeOrderNo = random();
+
       const newOrderNos = collect.item.map((item) => {
         totalAmount += item.qty;
         const newOrderNo = this.ordernoRepository.create({
+          orderCode: randomCodeOrderNo,
           quantity: item.qty,
           order: savedOrder,
           item: { id: item.itemId },

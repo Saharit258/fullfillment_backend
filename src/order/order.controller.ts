@@ -55,15 +55,8 @@ export class OrderController {
 
   @Get('/:id')
   async getOrderById(@Param('id', ParseIntPipe) id: number) {
-    try {
-      const data = await this.orderService.getOrderById(id);
-      return { data };
-    } catch (error) {
-      throw new HttpException(
-        `${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    const data = await this.orderService.getOrderById(id);
+    return { data };
   }
 
   @Get('history-status/:orderId')
@@ -113,25 +106,6 @@ export class OrderController {
   ) {
     try {
       const data = await this.orderService.updateOrder(id, body);
-      return { data };
-    } catch (error) {
-      throw new HttpException(
-        `${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  @Put('/status/:id')
-  async updateOrderStatus(
-    @Param('id', ParseIntPipe) id: number,
-    @Query() updateOrderDto: UpdateOrderstatusDto,
-  ) {
-    try {
-      const data = await this.orderService.updateOrderStatus(
-        id,
-        updateOrderDto,
-      );
       return { data };
     } catch (error) {
       throw new HttpException(

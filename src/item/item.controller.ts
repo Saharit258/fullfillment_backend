@@ -20,6 +20,7 @@ import { Item } from '../entities/item.entity';
 import { Connection } from 'typeorm';
 import { UpdateItemDto } from './dto/update-item.dto';
 import { query } from 'express';
+import { itemFilterDto } from './dto/item-filter.dto';
 
 @Controller('/items')
 @ApiTags('item')
@@ -45,8 +46,8 @@ export class ItemController {
   //-------------------------------------------------------Get-------------------------------------------------------------------//
 
   @Get()
-  async getItemss() {
-    const data = await this.itemService.getItems();
+  async queryBilderItem(@Query() body: itemFilterDto) {
+    const data = await this.itemService.queryBilderItem(body);
     return { data };
   }
 
@@ -62,11 +63,6 @@ export class ItemController {
     const data = await this.itemService.getItem(id);
     return { data };
   }
-
-  // @Put('/update-quantity')
-  // async updateQuantity(@Body() body: CreateHistoryDto) {
-  //   return await this.itemService.updateQuantity(body);
-  // }
 
   //------------------------------------------------------------Put---------------------------------------------------------------//
 

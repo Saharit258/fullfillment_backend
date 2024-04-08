@@ -64,12 +64,20 @@ export class OrderFilterDTO {
   country: string;
 
   @ApiProperty({ required: false })
-  @IsDate()
   @IsOptional()
-  orderDate: Date;
+  startDate: Date;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  endDate: Date;
 
   @ApiProperty({ required: false, enum: OrderStatus })
   @IsString()
   @IsOptional()
   status: string;
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  storesName: string;
 }

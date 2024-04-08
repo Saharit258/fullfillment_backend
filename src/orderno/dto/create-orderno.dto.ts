@@ -1,5 +1,11 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { IsArray, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { CreateOrderDto } from '../../order/dto/create-order.dto';
 
 export class CreateOrdernoDto extends PartialType(CreateOrderDto) {
