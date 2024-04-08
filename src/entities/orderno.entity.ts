@@ -13,9 +13,6 @@ export class OrderNo {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'order_code', nullable: true, type: 'varchar' })
-  orderCode: string;
-
   @Column({ name: 'quantity', nullable: true, type: 'int4' })
   quantity: number;
 

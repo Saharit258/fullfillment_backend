@@ -26,6 +26,14 @@ export class Item {
   @Column({ name: 'quantity', nullable: true, type: 'int4' })
   quantity: number;
 
+  @Column({
+    name: 'is_delete',
+    nullable: true,
+    type: 'boolean',
+    default: false,
+  })
+  isDelete: boolean;
+
   @OneToMany(() => History, (history) => history.item)
   history: History[];
 

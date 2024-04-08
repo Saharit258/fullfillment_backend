@@ -57,6 +57,9 @@ export class Order {
   @Column({ name: 'status', nullable: true, type: 'varchar' })
   status: string;
 
+  @Column({ name: 'order_code', nullable: true, type: 'varchar' })
+  orderCode: string;
+
   @OneToMany(() => OrderNo, (orderno) => orderno.order)
   orderno: OrderNo[];
 

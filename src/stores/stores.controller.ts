@@ -9,11 +9,13 @@ import {
   Delete,
   ParseIntPipe,
   Put,
+  Query,
 } from '@nestjs/common';
 import { StoresService } from './stores.service';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Stores } from 'src/entities/stores.entity';
+import { OrderFilterDTO } from './dto/stores-filter.dto';
 
 @Controller('stores')
 @ApiTags('stores')
@@ -31,15 +33,9 @@ export class StoresController {
   }
 
   @Get()
-  async getStore(): Promise<{
-    data: Stores[];
-  }> {
-    try {
-      const data = await this.storesService.getStore();
-      return { data };
-    } catch (error) {
-      throw new Error(`${error.message}`);
-    }
+  async queryBilderStores(@Query() body: OrderFilterDTO) {
+    const data = await this.storesService.queryBilderStores(body);
+    return { data };
   }
 
   @Put('/:id')

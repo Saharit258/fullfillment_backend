@@ -40,6 +40,7 @@ export class ItemService {
         name: body.name,
         details: body.details,
         quantity: 0,
+        isDelete: false,
         stores: { id: body.stores },
       });
       return await this.itemRepository.save(newItem);
@@ -82,6 +83,7 @@ export class ItemService {
 
   getItems(): Promise<Item[]> {
     const getItems = this.itemRepository.find({
+      where: { isDelete: false },
       order: { id: 'DESC' },
       relations: { stores: true, history: { lot: true } },
     });
@@ -164,7 +166,7 @@ export class ItemService {
           if (!itemToRemove) {
             throw new NotFoundException(`Item with ID ${id} not found`);
           }
-          await this.removeItem(id);
+          await this.itemRepository.update(id, { isDelete: true });
           return id;
         }),
       );
@@ -182,6 +184,7 @@ export class ItemService {
     const data = this.itemRepository
       .createQueryBuilder('item')
       .leftJoinAndSelect('item.stores', 'stores')
+      .where('item.isDelete != :excludedStores', { excludedStores: true })
       .orderBy('item.id', 'DESC');
 
     if (sku) {

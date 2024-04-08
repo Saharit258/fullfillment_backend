@@ -3,6 +3,7 @@ import { CreateStoreDto } from './dto/create-store.dto';
 import { Stores } from '../entities/stores.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { OrderFilterDTO } from './dto/stores-filter.dto';
 
 @Injectable()
 export class StoresService {
@@ -44,6 +45,33 @@ export class StoresService {
     } catch (error) {
       throw new Error(` ไม่สามารถแสดงผลได้ `);
     }
+  }
+
+  async queryBilderStores(body: OrderFilterDTO) {
+    const { storesName, shipperCode, shipperName } = body;
+    const data = this.storeRepository
+      .createQueryBuilder('stores')
+      .where('stores.isDelete != :excludedStores', { excludedStores: true })
+      .orderBy('stores.id', 'DESC');
+
+    if (storesName) {
+      data.andWhere('stores.name like :storesName', {
+        storesName: `%${storesName}%`,
+      });
+    }
+
+    if (shipperCode) {
+      data.andWhere('stores.shipperCode like :shipperCode', {
+        shipperCode: `%${shipperCode}%`,
+      });
+    }
+
+    if (shipperName) {
+      data.andWhere('stores.shipperName like :shipperName', {
+        shipperName: `%${shipperName}%`,
+      });
+    }
+    return await data.getMany();
   }
 
   //---------------------------------------------------ลบร้านค้า---------------------------------------------------------------------//

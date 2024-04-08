@@ -26,28 +26,6 @@ export class OrdernoService {
     try {
       const currentDate = new Date();
 
-      const newOrder = this.orderRepository.create({
-        customerName: collect.customerName,
-        uom: collect.uom,
-        cod: collect.cod,
-        orderDate: currentDate,
-        phoneNumber: collect.phoneNumber,
-        address: collect.address,
-        alley: collect.alley,
-        road: collect.road,
-        zipCode: collect.zipCode,
-        province: collect.province,
-        district: collect.district,
-        parish: collect.parish,
-        country: collect.country,
-        quantity: 0,
-        status: OrderStatus.NOTCHECKED,
-      });
-
-      const savedOrder = await this.orderRepository.save(newOrder);
-
-      let totalAmount = 0;
-
       const random = () => {
         let code = '';
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -81,10 +59,32 @@ export class OrdernoService {
 
       const randomCodeOrderNo = random();
 
+      const newOrder = this.orderRepository.create({
+        customerName: collect.customerName,
+        orderCode: randomCodeOrderNo,
+        uom: collect.uom,
+        cod: collect.cod,
+        orderDate: currentDate,
+        phoneNumber: collect.phoneNumber,
+        address: collect.address,
+        alley: collect.alley,
+        road: collect.road,
+        zipCode: collect.zipCode,
+        province: collect.province,
+        district: collect.district,
+        parish: collect.parish,
+        country: collect.country,
+        quantity: 0,
+        status: OrderStatus.NOTCHECKED,
+      });
+
+      const savedOrder = await this.orderRepository.save(newOrder);
+
+      let totalAmount = 0;
+
       const newOrderNos = collect.item.map((item) => {
         totalAmount += item.qty;
         const newOrderNo = this.ordernoRepository.create({
-          orderCode: randomCodeOrderNo,
           quantity: item.qty,
           order: savedOrder,
           item: { id: item.itemId },
@@ -107,7 +107,7 @@ export class OrdernoService {
 
   async getOrderItem(): Promise<OrderNo[]> {
     const data = await this.ordernoRepository.find({
-      relations: ['item', 'item.stores'],
+      relations: { item: { stores: true } },
       order: { id: 'DESC' },
     });
     return data;
