@@ -117,19 +117,19 @@ export class ItemService {
 
   //-----------------------------------------------------------ลบสินค้า-----------------------------------------------------------//
 
-  async removeItem(id: number): Promise<boolean> {
-    const findByids = await this.getItem(id);
+  // async removeItem(id: number): Promise<boolean> {
+  //   const findByids = await this.getItem(id);
 
-    const history = await this.historyRepository.find({
-      where: { item: findByids },
-    });
-    for (const historys of history) {
-      historys.item = null;
-      await this.historyRepository.save(historys);
-    }
-    await this.itemRepository.remove(findByids);
-    return true;
-  }
+  //   const history = await this.historyRepository.find({
+  //     where: { item: findByids },
+  //   });
+  //   for (const historys of history) {
+  //     historys.item = null;
+  //     await this.historyRepository.save(historys);
+  //   }
+  //   await this.itemRepository.remove(findByids);
+  //   return true;
+  // }
 
   async summaryQuantity(id: number) {
     const sum = await this.historyRepository

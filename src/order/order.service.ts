@@ -7,7 +7,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderstatusDto } from './dto/update-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindManyOptions, IsNull, Like, Not, Repository } from 'typeorm';
+import { FindManyOptions, In, IsNull, Like, Not, Repository } from 'typeorm';
 import { Order } from '../entities/order.entity';
 import { ApiOperation } from '@nestjs/swagger';
 import { OrderStatusFilterDTO } from './dto/orderstatus-filter.dto';
@@ -102,7 +102,11 @@ export class OrderService {
     const { orderId, status } = data;
     const { status: newStatus } = status;
 
-    const orders = await this.orderRepository.findByIds(orderId);
+    const orders = await this.orderRepository.find({
+      where: {
+        id: In(orderId),
+      },
+    });
 
     for (const order of orders) {
       if (!order) {
@@ -110,6 +114,48 @@ export class OrderService {
       }
 
       const previousStatus = order.status;
+
+      if (
+        previousStatus === OrderStatus.OUTOFSTOCK &&
+        newStatus === OrderStatus.NOTCHECKED
+      ) {
+        throw new BadRequestException(
+          `Cannot transition from ${previousStatus} to ${newStatus}`,
+        );
+      }
+
+      if (
+        previousStatus === OrderStatus.INPROGRESS &&
+        (newStatus === OrderStatus.NOTCHECKED ||
+          newStatus === OrderStatus.OUTOFSTOCK)
+      ) {
+        throw new BadRequestException(
+          `Cannot transition from ${previousStatus} to ${newStatus}`,
+        );
+      }
+
+      if (
+        previousStatus === OrderStatus.DELIVERED &&
+        (newStatus === OrderStatus.NOTCHECKED ||
+          newStatus === OrderStatus.OUTOFSTOCK ||
+          newStatus === OrderStatus.INPROGRESS)
+      ) {
+        throw new BadRequestException(
+          `Cannot transition from ${previousStatus} to ${newStatus}`,
+        );
+      }
+
+      if (
+        previousStatus === OrderStatus.RETURNED &&
+        (newStatus === OrderStatus.NOTCHECKED ||
+          newStatus === OrderStatus.OUTOFSTOCK ||
+          newStatus === OrderStatus.INPROGRESS ||
+          newStatus === OrderStatus.DELIVERED)
+      ) {
+        throw new BadRequestException(
+          `Cannot transition from ${previousStatus} to ${newStatus}`,
+        );
+      }
 
       order.status = OrderStatus[newStatus as keyof typeof OrderStatus];
       await this.orderRepository.save(order);
@@ -171,11 +217,9 @@ export class OrderService {
 
       const currentDate = new Date();
 
-      const status = order.status;
-
       const addHistoryOrder = this.historyOrderRepository.create({
         orderStatusDate: currentDate,
-        status: status,
+        status: order.status,
         order: { id: order.id },
       });
 

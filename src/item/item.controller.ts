@@ -99,9 +99,9 @@ export class ItemController {
     }
   }
 
-  @Delete('/:id')
-  async removeItem(@Param('id', ParseIntPipe) id: number) {
-    await this.itemService.removeItem(id);
-    return { data: {} };
-  }
+  // @Delete('/:id')
+  // async removeItem(@Param('id', ParseIntPipe) id: number) {
+  //   await this.itemService.removeItem(id);
+  //   return { data: {} };
+  // }
 }
