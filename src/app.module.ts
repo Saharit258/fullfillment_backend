@@ -23,7 +23,7 @@ import { HistoryOrderModule } from './history-order/history-order.module';
       port: 5432,
       username: 'postgres',
       password: '123456',
-      database: 'fullfillment',
+      database: 'newfullfillment',
       entities: [Lot, Item, History, Stores, Order, OrderNo, HistoryOrder],
       synchronize: true,
     }),

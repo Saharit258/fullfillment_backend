@@ -138,7 +138,8 @@ export class OrderService {
         previousStatus === OrderStatus.DELIVERED &&
         (newStatus === OrderStatus.NOTCHECKED ||
           newStatus === OrderStatus.OUTOFSTOCK ||
-          newStatus === OrderStatus.INPROGRESS)
+          newStatus === OrderStatus.INPROGRESS ||
+          newStatus === OrderStatus.RETURNED)
       ) {
         throw new BadRequestException(
           `Cannot transition from ${previousStatus} to ${newStatus}`,
@@ -160,10 +161,7 @@ export class OrderService {
       order.status = OrderStatus[newStatus as keyof typeof OrderStatus];
       await this.orderRepository.save(order);
 
-      if (
-        order.status === OrderStatus.INPROGRESS &&
-        previousStatus !== OrderStatus.INPROGRESS
-      ) {
+      if (order.status === OrderStatus.INPROGRESS) {
         const orderNos = await this.orderNoRepository.find({
           where: { order: order },
           relations: ['item'],
@@ -173,6 +171,9 @@ export class OrderService {
           const item = orderNo.item;
           item.quantity -= orderNo.quantity;
           if (item.quantity - orderNo.quantity < 0) {
+            await this.orderRepository.update(order.id, {
+              status: OrderStatus.OUTOFSTOCK,
+            });
             throw new BadRequestException('จำนวนของไม่พอ');
           }
           await this.itemRepository.save(item);
@@ -189,10 +190,7 @@ export class OrderService {
         }
       }
 
-      if (
-        order.status === OrderStatus.RETURNEDITEM &&
-        previousStatus !== OrderStatus.RETURNEDITEM
-      ) {
+      if (order.status === OrderStatus.RETURNEDITEM) {
         const orderNos = await this.orderNoRepository.find({
           where: { order: order },
           relations: ['item'],

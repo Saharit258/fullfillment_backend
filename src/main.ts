@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as morgan from 'morgan';
+import { SwaggerTheme, SwaggerThemeNameEnum } from 'swagger-themes';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -15,7 +16,13 @@ async function bootstrap() {
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+
+  const theme = new SwaggerTheme();
+  const options = {
+    explorer: true,
+    customCss: theme.getBuffer(SwaggerThemeNameEnum.DARK),
+  };
+  SwaggerModule.setup('api', app, document, options);
 
   app.use(morgan('short'));
 
