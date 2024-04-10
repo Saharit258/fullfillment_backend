@@ -35,6 +35,13 @@ export class ItemService {
 
   async addItem(body: CreateItemDto): Promise<Item> {
     try {
+      const existingItem = await this.itemRepository.findOne({
+        where: { sku: body.sku },
+      });
+      if (existingItem) {
+        throw new Error(`SKU ${body.sku} มีอยู่แล้วในระบบ`);
+      }
+
       const newItem = this.itemRepository.create({
         sku: body.sku,
         name: body.name,
@@ -43,9 +50,10 @@ export class ItemService {
         isDelete: false,
         stores: { id: body.stores },
       });
+
       return await this.itemRepository.save(newItem);
     } catch (error) {
-      throw new Error(`${error.message}`);
+      throw new BadRequestException(`${error.message}`);
     }
   }
 
