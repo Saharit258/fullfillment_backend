@@ -19,7 +19,7 @@ import { OrderFilterDTO, OrderItemFilterDTO } from './dto/order-filter.dto';
 import { OrderNo } from 'src/entities/orderno.entity';
 
 @Controller('records')
-@ApiTags('Record')
+@ApiTags('record')
 export class OrdernoController {
   constructor(private readonly ordernoService: OrdernoService) {}
 
@@ -27,7 +27,7 @@ export class OrdernoController {
   async getOrderItem(@Query() body: OrderItemFilterDTO): Promise<{
     data: OrderNo[];
   }> {
-    const data = await this.ordernoService.queryBilderOrderItem(body);
+    const data = await this.ordernoService.getOrderItemSummary(body);
     return { data };
   }
 }

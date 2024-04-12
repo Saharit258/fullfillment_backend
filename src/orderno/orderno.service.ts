@@ -25,7 +25,8 @@ export class OrdernoService {
 
   async addOrder(collect: CreateOrdernoDto): Promise<OrderNo[]> {
     try {
-      const currentDate = new Date();
+      let randomCodeOrderNo = '';
+      let isDuplicate = true;
 
       const random = () => {
         let code = '';
@@ -58,7 +59,18 @@ export class OrdernoService {
         return code;
       };
 
-      const randomCodeOrderNo = random();
+      while (isDuplicate) {
+        randomCodeOrderNo = random();
+        const existingOrder = await this.orderRepository.findOne({
+          where: { orderCode: randomCodeOrderNo },
+        });
+
+        if (!existingOrder) {
+          isDuplicate = false;
+        }
+      }
+
+      const currentDate = new Date();
 
       const newOrder = this.orderRepository.create({
         customerName: collect.customerName,
@@ -114,14 +126,21 @@ export class OrdernoService {
     return data;
   }
 
-  async queryBilderOrderItem(body: OrderItemFilterDTO) {
+  async getOrderItemSummary(body: OrderItemFilterDTO): Promise<any[]> {
     const { sku, startDate, endDate, storesName } = body;
-    const data = this.ordernoRepository
-      .createQueryBuilder('orderno')
-      .leftJoinAndSelect('orderno.item', 'item')
-      .leftJoinAndSelect('orderno.order', 'order')
-      .leftJoinAndSelect('item.stores', 'stores')
-      .orderBy('orderno.id', 'DESC');
+    const data = await this.ordernoRepository
+      .createQueryBuilder('order_no')
+      .select([
+        'order_no.itemId',
+        'SUM(order_no.quantity)',
+        'item.sku',
+        'stores.name',
+        'item.quantity',
+      ])
+      .leftJoin('order_no.item', 'item')
+      .leftJoin('order_no.order', 'order')
+      .leftJoin('item.stores', 'stores')
+      .groupBy('order_no.itemId, item.sku, stores.name, item.quantity');
 
     if (sku) {
       data.andWhere('item.sku like :sku', {
@@ -142,6 +161,6 @@ export class OrdernoService {
       });
     }
 
-    return await data.getMany();
+    return data.getRawMany();
   }
 }

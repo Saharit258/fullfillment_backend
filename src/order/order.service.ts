@@ -169,13 +169,18 @@ export class OrderService {
 
         for (const orderNo of orderNos) {
           const item = orderNo.item;
-          item.quantity -= orderNo.quantity;
-          if (item.quantity - orderNo.quantity < 0) {
+          const updatedQuantity = item.quantity - orderNo.quantity;
+          if (updatedQuantity < 0) {
             await this.orderRepository.update(order.id, {
               status: OrderStatus.OUTOFSTOCK,
             });
             throw new BadRequestException('จำนวนของไม่พอ');
           }
+          item.quantity = updatedQuantity;
+        }
+
+        for (const orderNo of orderNos) {
+          const item = orderNo.item;
           await this.itemRepository.save(item);
         }
 

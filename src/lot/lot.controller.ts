@@ -15,7 +15,7 @@ import { CreateHistoryDto } from '../history/dto/create-history.dio';
 import { ApiTags } from '@nestjs/swagger';
 
 @Controller('/lots')
-@ApiTags('/lots')
+@ApiTags('lot')
 export class LotController {
   constructor(private readonly lotService: LotService) {}
 
