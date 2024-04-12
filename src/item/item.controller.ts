@@ -40,22 +40,22 @@ export class ItemController {
   @Post('/multiple')
   async addItems(@Body() body: CreateItemDto[]) {
     const data = await this.itemService.addItemmultiple(body);
-    return { data };
+    return data;
   }
 
   //-------------------------------------------------------Get-------------------------------------------------------------------//
 
   @Get()
   async queryBilderItem(@Query() body: itemFilterDto) {
-    const data = await this.itemService.queryBilderItem(body);
-    return { data };
+    const pagination = await this.itemService.queryBilderItem(body);
+    return { data: pagination };
   }
 
   //แสดง PageOptionsDto
 
-  // @Get()
-  // async getItem(@Query() query: PageOptionsDto): Promise<Pagination<item>> {
-  //   return await this.itemService.getItem(query);
+  // @Get('sssss')
+  // async getItem(@Query() query: PageOptionsDto): Promise<Pagination<Item>> {
+  //   return await this.itemService.getIteaam(query);
   // }
 
   @Get('/:id')

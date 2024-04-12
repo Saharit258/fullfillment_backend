@@ -4,6 +4,8 @@ import { Stores } from '../entities/stores.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { OrderFilterDTO } from './dto/stores-filter.dto';
+import { PageOptionsDto } from 'src/item/dto/create-item.dto';
+import { Pagination, paginate } from 'nestjs-typeorm-paginate';
 
 @Injectable()
 export class StoresService {
@@ -47,8 +49,17 @@ export class StoresService {
     }
   }
 
-  async queryBilderStores(body: OrderFilterDTO) {
+  async queryBilderStores(
+    body: OrderFilterDTO,
+    query: PageOptionsDto,
+  ): Promise<Pagination<Stores>> {
     const { storesName, shipperCode, shipperName } = body;
+
+    const options = {
+      page: query.page,
+      limit: query.limit,
+    };
+
     const data = this.storeRepository
       .createQueryBuilder('stores')
       .where('stores.isDelete != :excludedStores', { excludedStores: true })
@@ -71,7 +82,9 @@ export class StoresService {
         shipperName: `%${shipperName}%`,
       });
     }
-    return await data.getMany();
+
+    const dataStores = await paginate(data, options);
+    return dataStores;
   }
 
   //---------------------------------------------------ลบร้านค้า---------------------------------------------------------------------//

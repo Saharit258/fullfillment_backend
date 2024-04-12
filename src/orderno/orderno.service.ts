@@ -126,9 +126,9 @@ export class OrdernoService {
     return data;
   }
 
-  async getOrderItemSummary(body: OrderItemFilterDTO): Promise<any[]> {
+  async getOrderItemSummary(body: OrderItemFilterDTO) {
     const { sku, startDate, endDate, storesName } = body;
-    const data = await this.ordernoRepository
+    const data = this.ordernoRepository
       .createQueryBuilder('order_no')
       .select([
         'order_no.itemId',
@@ -140,6 +140,7 @@ export class OrdernoService {
       .leftJoin('order_no.item', 'item')
       .leftJoin('order_no.order', 'order')
       .leftJoin('item.stores', 'stores')
+
       .groupBy('order_no.itemId, item.sku, stores.name, item.quantity');
 
     if (sku) {
@@ -163,4 +164,65 @@ export class OrdernoService {
 
     return data.getRawMany();
   }
+
+  // async getOrderItemSummary(body: OrderItemFilterDTO, query: PageOptionsDto) {
+  //   const { sku, startDate, endDate, storesName } = body;
+
+  //   const options = {
+  //     page: query.page,
+  //     limit: query.limit,
+  //   };
+
+  //   const dataQuery = this.ordernoRepository
+  //     .createQueryBuilder('order_no')
+  //     .select([
+  //       'order_no.itemId',
+  //       'SUM(order_no.quantity) AS totalQuantity', // Renamed for clarity
+  //       'item.sku',
+  //       'stores.name AS storeName',
+  //       'item.quantity',
+  //     ])
+  //     .leftJoin('order_no.item', 'item')
+  //     .leftJoin('order_no.order', 'order')
+  //     .leftJoin('item.stores', 'stores')
+  //     .groupBy('order_no.itemId, item.sku, stores.name, item.quantity');
+
+  //   if (sku) {
+  //     dataQuery.andWhere('item.sku like :sku', {
+  //       sku: `%${sku}%`,
+  //     });
+  //   }
+
+  //   if (startDate && endDate) {
+  //     dataQuery.andWhere('order.orderDate BETWEEN :startDate AND :endDate', {
+  //       startDate,
+  //       endDate,
+  //     });
+  //   }
+
+  //   if (storesName) {
+  //     dataQuery.andWhere('stores.name like :storesName', {
+  //       storesName: `%${storesName}%`,
+  //     });
+  //   }
+
+  //   const totalCount = await dataQuery.getCount();
+  //   const totalPages = Math.ceil(totalCount / query.limit);
+
+  //   options.page = Math.min(options.page, totalPages);
+  //   options.page = Math.max(options.page, 1);
+
+  //   const result = await dataQuery
+  //     .offset((options.page - 1) * options.limit)
+  //     .limit(options.limit)
+  //     .getRawMany();
+
+  //   return {
+  //     totalCount,
+  //     totalPages,
+  //     currentPage: options.page,
+  //     pageSize: options.limit,
+  //     data: result,
+  //   };
+  // }
 }

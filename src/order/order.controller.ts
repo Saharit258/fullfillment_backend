@@ -27,7 +27,7 @@ import { OrderStatusFilterDTO } from './dto/orderstatus-filter.dto';
 import { OrderStatus } from 'src/orderno/dto/order-enum';
 import { CreateOrdernoDto } from '../orderno/dto/create-orderno.dto';
 import { OrdernoService } from '../orderno/orderno.service';
-import { MultiIds } from 'src/item/dto/create-item.dto';
+import { MultiIds, PageOptionsDto } from 'src/item/dto/create-item.dto';
 
 @Controller('orders')
 @ApiTags('order')
@@ -48,8 +48,11 @@ export class OrderController {
   //-------------------------------------------------------------get-------------------------------------------------------------//
 
   @Get()
-  async queryBilder(@Query() body: OrderFilterDTO) {
-    const data = await this.orderService.queryBilder(body);
+  async queryBilder(
+    @Query() body: OrderFilterDTO,
+    @Query() query: PageOptionsDto,
+  ) {
+    const data = await this.orderService.queryBilder(body, query);
     return { data };
   }
 

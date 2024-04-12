@@ -18,7 +18,8 @@ import { History } from '../entities/history.entity';
 import { HistoryOrder } from '../entities/historyorder.entity';
 import { OrderFilterDTO } from 'src/orderno/dto/order-filter.dto';
 import { UpdateStatusMultipleDto } from '../order/dto/update-order.dto';
-import { MultiIds } from 'src/item/dto/create-item.dto';
+import { MultiIds, PageOptionsDto } from 'src/item/dto/create-item.dto';
+import { paginate } from 'nestjs-typeorm-paginate';
 
 @Injectable()
 export class OrderService {
@@ -247,7 +248,7 @@ export class OrderService {
 
   //---------------------------------------------------queryBilder-------------------------------------------------------------//
 
-  async queryBilder(body: OrderFilterDTO) {
+  async queryBilder(body: OrderFilterDTO, query: PageOptionsDto) {
     const {
       customerName,
       status,
@@ -266,6 +267,12 @@ export class OrderService {
       endDate,
       storesName,
     } = body;
+
+    const options = {
+      page: query.page,
+      limit: query.limit,
+    };
+
     const data = this.orderRepository
       .createQueryBuilder('order')
       .leftJoinAndSelect('order.orderno', 'orderno')
@@ -351,7 +358,8 @@ export class OrderService {
       });
     }
 
-    return await data.getMany();
+    const dataOrder = await paginate(data, options);
+    return dataOrder;
   }
 
   //-------------------------------------------------------searchOrderStatus-----------------------------------------------------//

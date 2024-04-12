@@ -16,6 +16,7 @@ import { CreateStoreDto } from './dto/create-store.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Stores } from 'src/entities/stores.entity';
 import { OrderFilterDTO } from './dto/stores-filter.dto';
+import { PageOptionsDto } from 'src/item/dto/create-item.dto';
 
 @Controller('stores')
 @ApiTags('stores')
@@ -33,8 +34,11 @@ export class StoresController {
   }
 
   @Get()
-  async queryBilderStores(@Query() body: OrderFilterDTO) {
-    const data = await this.storesService.queryBilderStores(body);
+  async queryBilderStores(
+    @Query() body: OrderFilterDTO,
+    @Query() query: PageOptionsDto,
+  ) {
+    const data = await this.storesService.queryBilderStores(body, query);
     return { data };
   }
 

@@ -100,7 +100,7 @@ export class ItemService {
 
   //แสดงPageOptionsDto
 
-  // async getItem(query: PageOptionsDto): Promise<Pagination<item>> {
+  // async getIteaam(query: PageOptionsDto): Promise<Pagination<Item>> {
   //   const options: IPaginationOptions = {
   //     page: query.page,
   //     limit: query.limit,
@@ -187,32 +187,46 @@ export class ItemService {
 
   //---------------------------------------------------ค้นหา---------------------------------------------------------------------//
 
-  async queryBilderItem(body: itemFilterDto) {
+  async queryBilderItem(body: itemFilterDto): Promise<Pagination<Item>> {
     const { sku, name, details, stores, everything } = body;
-    const data = this.itemRepository
+
+    const options = {
+      page: body.page,
+      limit: body.limit,
+    };
+
+    let queryBuilder = this.itemRepository
       .createQueryBuilder('item')
       .leftJoinAndSelect('item.stores', 'stores')
       .where('item.isDelete != :excludedStores', { excludedStores: true })
       .orderBy('item.id', 'DESC');
 
     if (sku) {
-      data.andWhere('item.sku like :sku', { sku: `%${sku}%` });
+      queryBuilder = queryBuilder.andWhere('item.sku like :sku', {
+        sku: `%${sku}%`,
+      });
     }
 
     if (name) {
-      data.andWhere('item.name like :name', { name: `%${name}%` });
+      queryBuilder = queryBuilder.andWhere('item.name like :name', {
+        name: `%${name}%`,
+      });
     }
 
     if (details) {
-      data.andWhere('item.details like :details', { details: `%${details}%` });
+      queryBuilder = queryBuilder.andWhere('item.details like :details', {
+        details: `%${details}%`,
+      });
     }
 
     if (stores) {
-      data.andWhere('stores.name like :stores', { stores: `%${stores}%` });
+      queryBuilder = queryBuilder.andWhere('stores.name like :stores', {
+        stores: `%${stores}%`,
+      });
     }
 
     if (everything) {
-      data.andWhere(
+      queryBuilder = queryBuilder.andWhere(
         'item.sku like :everything or item.name like :everything or item.details like :everything or stores.name like :everything or (item.quantity)::text like :everything',
         {
           everything: `%${everything}%`,
@@ -220,6 +234,7 @@ export class ItemService {
       );
     }
 
-    return await data.getMany();
+    const data = await paginate(queryBuilder, options);
+    return data;
   }
 }

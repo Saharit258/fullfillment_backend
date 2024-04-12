@@ -17,6 +17,7 @@ import { UpdateOrdernoDto } from './dto/update-orderno.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { OrderFilterDTO, OrderItemFilterDTO } from './dto/order-filter.dto';
 import { OrderNo } from 'src/entities/orderno.entity';
+import { PageOptionsDto } from 'src/item/dto/create-item.dto';
 
 @Controller('records')
 @ApiTags('record')
@@ -24,9 +25,7 @@ export class OrdernoController {
   constructor(private readonly ordernoService: OrdernoService) {}
 
   @Get('item')
-  async getOrderItem(@Query() body: OrderItemFilterDTO): Promise<{
-    data: OrderNo[];
-  }> {
+  async getOrderItem(@Query() body: OrderItemFilterDTO) {
     const data = await this.ordernoService.getOrderItemSummary(body);
     return { data };
   }
