@@ -21,6 +21,7 @@ async function bootstrap() {
   const options = {
     customCss: theme.getBuffer(SwaggerThemeNameEnum.DARK),
   };
+
   SwaggerModule.setup('api', app, document, options);
 
   app.use(morgan('short'));

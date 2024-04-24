@@ -38,8 +38,8 @@ export class StoresController {
     @Query() body: OrderFilterDTO,
     @Query() query: PageOptionsDto,
   ) {
-    const data = await this.storesService.queryBilderStores(body, query);
-    return { data };
+    const pagination = await this.storesService.queryBilderStores(body, query);
+    return { data: pagination.items, meta: pagination.meta };
   }
 
   @Put('/:id')

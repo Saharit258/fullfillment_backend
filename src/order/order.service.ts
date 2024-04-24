@@ -117,8 +117,23 @@ export class OrderService {
       const previousStatus = order.status;
 
       if (
+        previousStatus === OrderStatus.NOTCHECKED &&
+        (newStatus === OrderStatus.INPROGRESS ||
+          newStatus === OrderStatus.DELIVERED ||
+          newStatus === OrderStatus.RETURNED ||
+          newStatus === OrderStatus.RETURNEDITEM)
+      ) {
+        throw new BadRequestException(
+          `Cannot transition from ${previousStatus} to ${newStatus}`,
+        );
+      }
+
+      if (
         previousStatus === OrderStatus.OUTOFSTOCK &&
-        newStatus === OrderStatus.NOTCHECKED
+        (newStatus === OrderStatus.NOTCHECKED ||
+          newStatus === OrderStatus.DELIVERED ||
+          newStatus === OrderStatus.RETURNED ||
+          newStatus === OrderStatus.RETURNEDITEM)
       ) {
         throw new BadRequestException(
           `Cannot transition from ${previousStatus} to ${newStatus}`,

@@ -48,7 +48,7 @@ export class ItemController {
   @Get()
   async queryBilderItem(@Query() body: itemFilterDto) {
     const pagination = await this.itemService.queryBilderItem(body);
-    return { data: pagination };
+    return { data: pagination.items, meta: pagination.meta };
   }
 
   //แสดง PageOptionsDto
@@ -99,9 +99,9 @@ export class ItemController {
     }
   }
 
-  // @Delete('/:id')
-  // async removeItem(@Param('id', ParseIntPipe) id: number) {
-  //   await this.itemService.removeItem(id);
-  //   return { data: {} };
-  // }
+  @Delete('/:id')
+  async removeItem(@Param('id', ParseIntPipe) id: number) {
+    await this.itemService.removeItem(id);
+    return { data: {} };
+  }
 }

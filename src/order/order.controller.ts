@@ -52,8 +52,8 @@ export class OrderController {
     @Query() body: OrderFilterDTO,
     @Query() query: PageOptionsDto,
   ) {
-    const data = await this.orderService.queryBilder(body, query);
-    return { data };
+    const pagination = await this.orderService.queryBilder(body, query);
+    return { data: pagination.items, meta: pagination.meta };
   }
 
   @Get('/:id')
