@@ -16,6 +16,9 @@ export class OrderNo {
   @Column({ name: 'quantity', nullable: true, type: 'int4' })
   quantity: number;
 
+  @Column({ name: 'orderno_date', nullable: true, type: 'timestamptz' })
+  ordernoDate: Date;
+
   @ManyToOne(() => Item, (item) => item.orderno)
   item: Item;
 

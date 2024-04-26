@@ -51,13 +51,6 @@ export class ItemController {
     return { data: pagination.items, meta: pagination.meta };
   }
 
-  //แสดง PageOptionsDto
-
-  // @Get('sssss')
-  // async getItem(@Query() query: PageOptionsDto): Promise<Pagination<Item>> {
-  //   return await this.itemService.getIteaam(query);
-  // }
-
   @Get('/:id')
   async getItems(@Param('id', ParseIntPipe) id: number) {
     const data = await this.itemService.getItem(id);

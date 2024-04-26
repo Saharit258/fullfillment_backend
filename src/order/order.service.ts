@@ -75,9 +75,12 @@ export class OrderService {
 
       let total = 0;
 
+      const ordernoDate = new Date();
+
       const addorderno = body.item.map((item) => {
         total += item.qty;
         return this.orderNoRepository.create({
+          ordernoDate: ordernoDate,
           quantity: item.qty,
           order: { id: order.id },
           item: { id: item.itemId },

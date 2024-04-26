@@ -9,6 +9,8 @@ import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 import { History } from '../entities/history.entity';
 import { CreateHistoryDto } from './dto/create-history.dio';
 import { Item } from '../entities/item.entity';
+import { HistoryFilterDto } from './dto/history-filter.dto';
+import { paginate } from 'nestjs-typeorm-paginate';
 
 @Injectable()
 export class HistoryService {
@@ -50,10 +52,36 @@ export class HistoryService {
     try {
       const getHistoryById = await this.getHistoryByIdItem({
         order: { id: 'DESC' },
-        where: { item: { id: itemId } }, //การดึงไอดีจากไอเทม
+        where: { item: { id: itemId } },
       });
       return getHistoryById;
     } catch (error) {}
+  }
+
+  async getHistoryByIdFilter(itemId: number, body: HistoryFilterDto) {
+    try {
+      const { startDate, endDate } = body;
+
+      let queryBuilder = this.historyRepository
+        .createQueryBuilder('history')
+        .orderBy('history.id', 'DESC')
+        .where('history.itemId = :itemId', { itemId });
+
+      if (startDate && endDate) {
+        queryBuilder.andWhere(
+          'history.outDate BETWEEN :startDate AND :endDate',
+          {
+            startDate,
+            endDate,
+          },
+        );
+      }
+
+      const result = await queryBuilder.getMany();
+      return result;
+    } catch (error) {
+      throw new Error(`${error.message}`);
+    }
   }
 
   //-----------------------------------------------------บวกในข้อมูล-------------------------------------------------------------//

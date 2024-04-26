@@ -9,6 +9,7 @@ import { Order } from '../entities/order.entity';
 // import { item } from '../entities/item.entity'; // Corrected import
 import { OrderStatus } from './dto/order-enum';
 import { OrderItemFilterDTO } from './dto/order-filter.dto';
+import { PageOptionsDto } from '../item/dto/create-item.dto';
 
 @Injectable()
 export class OrdernoService {
@@ -95,11 +96,14 @@ export class OrdernoService {
 
       let totalAmount = 0;
 
+      const ordernoDate = new Date();
+
       const newOrderNos = collect.item.map((item) => {
         totalAmount += item.qty;
         const newOrderNo = this.ordernoRepository.create({
           quantity: item.qty,
           order: savedOrder,
+          ordernoDate: ordernoDate,
           item: { id: item.itemId },
         });
         return newOrderNo;
@@ -128,7 +132,7 @@ export class OrdernoService {
 
   async getOrderItemSummary(body: OrderItemFilterDTO) {
     const { sku, startDate, endDate, storesName } = body;
-    const data = this.ordernoRepository
+    let queryBuilder = this.ordernoRepository
       .createQueryBuilder('order_no')
       .select([
         'order_no.itemId',
@@ -140,89 +144,96 @@ export class OrdernoService {
       .leftJoin('order_no.item', 'item')
       .leftJoin('order_no.order', 'order')
       .leftJoin('item.stores', 'stores')
-
+      .where('order.status IN (:...statuses)', {
+        statuses: ['NOTCHECKED', 'OUTOFSTOCK'],
+      })
       .groupBy('order_no.itemId, item.sku, stores.name, item.quantity');
 
     if (sku) {
-      data.andWhere('item.sku like :sku', {
+      queryBuilder = queryBuilder.andWhere('item.sku LIKE :sku', {
         sku: `%${sku}%`,
       });
     }
 
     if (startDate && endDate) {
-      data.andWhere('order.orderDate BETWEEN :startDate AND :endDate', {
-        startDate,
-        endDate,
-      });
+      queryBuilder = queryBuilder.andWhere(
+        'order_no.orderno_date BETWEEN :startDate AND :endDate',
+        {
+          startDate,
+          endDate,
+        },
+      );
     }
 
     if (storesName) {
-      data.andWhere('stores.name like :storesName', {
+      queryBuilder = queryBuilder.andWhere('stores.name LIKE :storesName', {
+        storesName: `%${storesName}%`,
+      });
+    }
+    return queryBuilder.getRawMany();
+  }
+
+  async getOrderItemSummarys(body: OrderItemFilterDTO, query: PageOptionsDto) {
+    const { sku, startDate, endDate, storesName } = body;
+
+    const options = {
+      page: query.page || 1,
+      limit: query.limit || 10,
+    };
+    let dataQuery = this.ordernoRepository
+      .createQueryBuilder('order_no')
+      .select([
+        'order_no.itemId',
+        'SUM(order_no.quantity)',
+        'item.sku',
+        'stores.name',
+        'item.quantity',
+      ])
+      .leftJoin('order_no.item', 'item')
+      .leftJoin('order_no.order', 'order')
+      .leftJoin('item.stores', 'stores')
+      .where('order.status IN (:...statuses)', {
+        statuses: ['NOTCHECKED', 'OUTOFSTOCK'],
+      })
+      .groupBy('order_no.itemId, item.sku, stores.name, item.quantity');
+
+    const results = await dataQuery.getRawMany();
+
+    if (sku) {
+      dataQuery.andWhere('item.sku LIKE :sku', { sku: `%${sku}%` });
+    }
+
+    if (startDate && endDate) {
+      dataQuery.andWhere(
+        'order_no.orderno_date BETWEEN :startDate AND :endDate',
+        { startDate, endDate },
+      );
+    }
+
+    if (storesName) {
+      dataQuery.andWhere('stores.name LIKE :storesName', {
         storesName: `%${storesName}%`,
       });
     }
 
-    return data.getRawMany();
+    const totalCount = results.length;
+    const totalPages = Math.ceil(totalCount / options.limit);
+
+    options.page = Math.min(options.page, totalPages);
+    options.page = Math.max(options.page, 1);
+
+    const result = await dataQuery
+      .offset((options.page - 1) * options.limit)
+      .limit(options.limit)
+      .getRawMany();
+
+    const metadata = {
+      totalCount,
+      totalPages,
+      currentPage: options.page,
+      pageSize: options.limit,
+    };
+
+    return { metadata, result };
   }
-
-  // async getOrderItemSummary(body: OrderItemFilterDTO, query: PageOptionsDto) {
-  //   const { sku, startDate, endDate, storesName } = body;
-
-  //   const options = {
-  //     page: query.page,
-  //     limit: query.limit,
-  //   };
-
-  //   const dataQuery = this.ordernoRepository
-  //     .createQueryBuilder('order_no')
-  //     .select([
-  //       'order_no.itemId',
-  //       'SUM(order_no.quantity) AS totalQuantity', // Renamed for clarity
-  //       'item.sku',
-  //       'stores.name AS storeName',
-  //       'item.quantity',
-  //     ])
-  //     .leftJoin('order_no.item', 'item')
-  //     .leftJoin('order_no.order', 'order')
-  //     .leftJoin('item.stores', 'stores')
-  //     .groupBy('order_no.itemId, item.sku, stores.name, item.quantity');
-
-  //   if (sku) {
-  //     dataQuery.andWhere('item.sku like :sku', {
-  //       sku: `%${sku}%`,
-  //     });
-  //   }
-
-  //   if (startDate && endDate) {
-  //     dataQuery.andWhere('order.orderDate BETWEEN :startDate AND :endDate', {
-  //       startDate,
-  //       endDate,
-  //     });
-  //   }
-
-  //   if (storesName) {
-  //     dataQuery.andWhere('stores.name like :storesName', {
-  //       storesName: `%${storesName}%`,
-  //     });
-  //   }
-
-  //   const totalCount = await dataQuery.getCount();
-  //   const totalPages = Math.ceil(totalCount / query.limit);
-
-  //   options.page = Math.min(options.page, totalPages);
-  //   options.page = Math.max(options.page, 1);
-
-  //   const result = await dataQuery
-  //     .offset((options.page - 1) * options.limit)
-  //     .limit(options.limit)
-  //     .getRawMany();
-
-  //   return {
-  //     totalCount,
-  //     totalPages,
-  //     currentPage: options.page,
-  //     pageSize: options.limit,
-  //     data: result,
-  //   };
-  // }
 }

@@ -17,7 +17,7 @@ import { UpdateOrdernoDto } from './dto/update-orderno.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { OrderFilterDTO, OrderItemFilterDTO } from './dto/order-filter.dto';
 import { OrderNo } from 'src/entities/orderno.entity';
-import { PageOptionsDto } from 'src/item/dto/create-item.dto';
+import { PageOptionsDto } from '../item/dto/create-item.dto';
 
 @Controller('records')
 @ApiTags('record')
@@ -28,5 +28,17 @@ export class OrdernoController {
   async getOrderItem(@Query() body: OrderItemFilterDTO) {
     const data = await this.ordernoService.getOrderItemSummary(body);
     return { data };
+  }
+
+  @Get('items')
+  async queryBilder(
+    @Query() body: OrderItemFilterDTO,
+    @Query() query: PageOptionsDto,
+  ) {
+    const pagination = await this.ordernoService.getOrderItemSummarys(
+      body,
+      query,
+    );
+    return { data: pagination.result, mate: pagination.metadata };
   }
 }

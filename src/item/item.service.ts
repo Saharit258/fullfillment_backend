@@ -98,21 +98,6 @@ export class ItemService {
     return getItems;
   }
 
-  //แสดงPageOptionsDto
-
-  // async getIteaam(query: PageOptionsDto): Promise<Pagination<Item>> {
-  //   const options: IPaginationOptions = {
-  //     page: query.page,
-  //     limit: query.limit,
-  //   };
-
-  //   const paginatedItems = await paginate(this.itemRepository, options, {
-  //     relations: ['stores', 'history'],
-  //   });
-
-  //   return paginatedItems;
-  // }
-
   //----------------------------------------------------------แสดงข้อมูลสินค้า1ชิ้น----------------------------------------------------//
 
   async getItem(id: number): Promise<Item> {
